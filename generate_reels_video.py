@@ -44,6 +44,7 @@ WHITE = (255, 255, 255)
 
 OUTPUT_DIR = "output"
 FRAMES_DIR = os.path.join(OUTPUT_DIR, "frames")
+BGM_FILE = "bgm.mp3"        # カスタムBGMファイル（プロジェクトルートに配置）
 
 # ── シーン定義 ─────────────────────────────────────
 SCENES = [
@@ -677,22 +678,38 @@ def generate_video():
             print(f"  ⚠️  MP4生成に失敗しました: {result.stderr[-200:]}")
             mp4_path = None
         else:
-            # 6b. BGM生成
-            print("\n🎵 BGM生成中（ピアノアンビエント）...")
-            bgm_path = os.path.join(OUTPUT_DIR, "bgm.wav")
-            generate_bgm_wav(bgm_path, total_duration)
-            bgm_size = os.path.getsize(bgm_path) / 1024
-            print(f"  → {bgm_path} ({bgm_size:.0f} KB)")
+            # 6b. BGM準備
+            bgm_source = None
+            if os.path.exists(BGM_FILE):
+                bgm_source = BGM_FILE
+                print(f"\n🎵 カスタムBGM: {BGM_FILE}")
+            else:
+                # フォールバック: 合成BGM
+                print("\n🎵 BGM生成中（ピアノアンビエント）...")
+                bgm_source = os.path.join(OUTPUT_DIR, "bgm.wav")
+                generate_bgm_wav(bgm_source, total_duration)
 
-            # 6c. 映像 + BGM合成
+            bgm_size = os.path.getsize(bgm_source) / 1024
+            print(f"  → {bgm_source} ({bgm_size:.0f} KB)")
+
+            # 6c. 映像 + BGM合成（ループ＋フェードアウト対応）
             print("\n🎬 映像とBGMを合成中...")
+            # BGMをループして動画長に合わせ、末尾2秒フェードアウト
+            fade_out_sec = 2.0
+            audio_filter = (
+                f"aloop=loop=-1:size=2e+09,"
+                f"atrim=duration={total_duration},"
+                f"afade=t=out:st={total_duration - fade_out_sec}:d={fade_out_sec}"
+            )
             cmd_merge = [
                 "ffmpeg", "-y",
                 "-i", mp4_silent,
-                "-i", bgm_path,
+                "-stream_loop", "-1",
+                "-i", bgm_source,
                 "-c:v", "copy",
+                "-af", audio_filter,
                 "-c:a", "aac",
-                "-b:a", "128k",
+                "-b:a", "192k",
                 "-shortest",
                 mp4_path,
             ]
@@ -700,9 +717,11 @@ def generate_video():
             if result2.returncode == 0:
                 mp4_size = os.path.getsize(mp4_path) / (1024 * 1024)
                 print(f"  → {mp4_path} ({mp4_size:.1f} MB) ♪ BGM付き")
-                # 一時ファイル削除
                 os.remove(mp4_silent)
-                os.remove(bgm_path)
+                # 合成BGMの一時ファイルがあれば削除
+                tmp_bgm = os.path.join(OUTPUT_DIR, "bgm.wav")
+                if os.path.exists(tmp_bgm):
+                    os.remove(tmp_bgm)
             else:
                 print(f"  ⚠️  BGM合成に失敗。無音版を使用します: {result2.stderr[-200:]}")
                 os.rename(mp4_silent, mp4_path)
