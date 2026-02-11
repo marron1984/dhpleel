@@ -1,0 +1,1216 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Instagram Reels ストーリーボード | 北新地 大嵓埜 2月新メニュー</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@300;400;500;600;700&family=Noto+Sans+JP:wght@300;400;500;700&display=swap');
+
+        :root {
+            --gold: #C4A265;
+            --gold-light: #E8D5A8;
+            --dark: #1A1A1A;
+            --dark-soft: #2D2D2D;
+            --cream: #FAF6F0;
+            --cream-dark: #F0E8D8;
+            --red-accent: #8B2500;
+            --green-accent: #4A6741;
+            --white: #FFFFFF;
+            --text: #333333;
+            --text-light: #666666;
+            --shadow: rgba(0,0,0,0.08);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans JP', sans-serif;
+            background: var(--cream);
+            color: var(--text);
+            line-height: 1.8;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(135deg, var(--dark) 0%, #2A2015 50%, var(--dark-soft) 100%);
+            color: var(--white);
+            padding: 80px 20px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(ellipse at 30% 50%, rgba(196,162,101,0.15) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .hero-badge {
+            display: inline-block;
+            border: 1px solid var(--gold);
+            color: var(--gold);
+            padding: 6px 24px;
+            font-size: 11px;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            margin-bottom: 30px;
+            font-family: 'Noto Sans JP', sans-serif;
+        }
+
+        .hero h1 {
+            font-family: 'Noto Serif JP', serif;
+            font-weight: 300;
+            font-size: clamp(28px, 5vw, 48px);
+            letter-spacing: 8px;
+            margin-bottom: 16px;
+        }
+
+        .hero h1 span {
+            color: var(--gold);
+        }
+
+        .hero-subtitle {
+            font-family: 'Noto Serif JP', serif;
+            font-weight: 300;
+            font-size: clamp(14px, 2.5vw, 20px);
+            color: var(--gold-light);
+            letter-spacing: 3px;
+            margin-bottom: 40px;
+        }
+
+        .hero-meta {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            flex-wrap: wrap;
+            font-size: 13px;
+            color: rgba(255,255,255,0.6);
+            letter-spacing: 1px;
+        }
+
+        .hero-meta span {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .hero-meta .dot {
+            width: 4px;
+            height: 4px;
+            background: var(--gold);
+            border-radius: 50%;
+        }
+
+        /* Container */
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        /* Section Headers */
+        .section-header {
+            text-align: center;
+            padding: 60px 0 40px;
+        }
+
+        .section-header .label {
+            font-size: 11px;
+            letter-spacing: 4px;
+            color: var(--gold);
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+
+        .section-header h2 {
+            font-family: 'Noto Serif JP', serif;
+            font-weight: 400;
+            font-size: clamp(22px, 3.5vw, 32px);
+            letter-spacing: 4px;
+            color: var(--dark);
+        }
+
+        .section-header .divider {
+            width: 60px;
+            height: 1px;
+            background: var(--gold);
+            margin: 20px auto 0;
+        }
+
+        /* Concept Overview */
+        .concept-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            margin-bottom: 60px;
+        }
+
+        .concept-card {
+            background: var(--white);
+            border-radius: 12px;
+            padding: 32px;
+            box-shadow: 0 2px 20px var(--shadow);
+            border: 1px solid rgba(196,162,101,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .concept-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+        }
+
+        .concept-card .icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, var(--gold-light), var(--gold));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            margin-bottom: 20px;
+        }
+
+        .concept-card h3 {
+            font-family: 'Noto Serif JP', serif;
+            font-weight: 500;
+            font-size: 16px;
+            margin-bottom: 12px;
+            letter-spacing: 1px;
+        }
+
+        .concept-card p {
+            font-size: 14px;
+            color: var(--text-light);
+            line-height: 1.8;
+        }
+
+        /* Timeline / Storyboard */
+        .timeline-container {
+            position: relative;
+            padding: 20px 0 60px;
+        }
+
+        .timeline-line {
+            position: absolute;
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(to bottom, var(--gold-light), var(--gold), var(--gold-light));
+            transform: translateX(-50%);
+        }
+
+        .timeline-item {
+            display: grid;
+            grid-template-columns: 1fr 80px 1fr;
+            gap: 0;
+            margin-bottom: 40px;
+            align-items: start;
+        }
+
+        .timeline-item:nth-child(odd) .timeline-content {
+            grid-column: 1;
+            text-align: right;
+            padding-right: 40px;
+        }
+
+        .timeline-item:nth-child(odd) .timeline-image {
+            grid-column: 3;
+            padding-left: 40px;
+        }
+
+        .timeline-item:nth-child(even) .timeline-content {
+            grid-column: 3;
+            text-align: left;
+            padding-left: 40px;
+        }
+
+        .timeline-item:nth-child(even) .timeline-image {
+            grid-column: 1;
+            grid-row: 1;
+            padding-right: 40px;
+        }
+
+        .timeline-marker {
+            grid-column: 2;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            z-index: 2;
+        }
+
+        .timeline-time {
+            background: var(--dark);
+            color: var(--gold);
+            font-size: 11px;
+            font-weight: 700;
+            padding: 6px 12px;
+            border-radius: 20px;
+            letter-spacing: 1px;
+            white-space: nowrap;
+        }
+
+        .timeline-dot {
+            width: 16px;
+            height: 16px;
+            background: var(--gold);
+            border: 3px solid var(--white);
+            border-radius: 50%;
+            margin-top: 8px;
+            box-shadow: 0 0 0 3px var(--gold-light);
+        }
+
+        .timeline-content {
+            background: var(--white);
+            border-radius: 12px;
+            padding: 28px;
+            box-shadow: 0 2px 20px var(--shadow);
+            border: 1px solid rgba(196,162,101,0.1);
+        }
+
+        .timeline-content .scene-label {
+            font-size: 11px;
+            color: var(--gold);
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .timeline-content h3 {
+            font-family: 'Noto Serif JP', serif;
+            font-weight: 500;
+            font-size: 18px;
+            margin-bottom: 12px;
+            letter-spacing: 1px;
+        }
+
+        .timeline-content .action {
+            font-size: 13px;
+            color: var(--text-light);
+            margin-bottom: 10px;
+            padding: 8px 12px;
+            background: var(--cream);
+            border-radius: 6px;
+            border-left: 3px solid var(--gold);
+        }
+
+        .timeline-content .action strong {
+            color: var(--dark);
+        }
+
+        .timeline-content .overlay-text {
+            font-family: 'Noto Serif JP', serif;
+            font-size: 15px;
+            color: var(--dark);
+            margin-bottom: 8px;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--cream-dark);
+        }
+
+        .timeline-content .copy {
+            font-size: 14px;
+            color: var(--text-light);
+            font-style: italic;
+            line-height: 1.7;
+        }
+
+        .timeline-image {
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        .timeline-image img {
+            width: 100%;
+            height: auto;
+            display: block;
+            transition: transform 0.5s ease;
+        }
+
+        .timeline-image:hover img {
+            transform: scale(1.05);
+        }
+
+        .timeline-image .img-placeholder {
+            width: 100%;
+            aspect-ratio: 4/3;
+            background: linear-gradient(135deg, var(--dark) 0%, var(--dark-soft) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--gold-light);
+            font-family: 'Noto Serif JP', serif;
+            font-size: 14px;
+            letter-spacing: 2px;
+        }
+
+        /* Hashtags & Caption */
+        .social-section {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 48px;
+            margin: 40px 0;
+            box-shadow: 0 2px 20px var(--shadow);
+            border: 1px solid rgba(196,162,101,0.1);
+        }
+
+        .hashtags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 32px;
+            justify-content: center;
+        }
+
+        .hashtag {
+            background: var(--cream);
+            color: var(--dark);
+            padding: 8px 18px;
+            border-radius: 24px;
+            font-size: 13px;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            border: 1px solid var(--cream-dark);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .hashtag:hover {
+            background: var(--gold);
+            color: var(--white);
+            border-color: var(--gold);
+        }
+
+        .caption-box {
+            background: var(--cream);
+            border-radius: 12px;
+            padding: 28px;
+            border-left: 4px solid var(--gold);
+            font-size: 15px;
+            line-height: 2;
+        }
+
+        /* BGM Section */
+        .bgm-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+            margin-bottom: 60px;
+        }
+
+        .bgm-card {
+            background: var(--white);
+            border-radius: 12px;
+            padding: 28px;
+            box-shadow: 0 2px 20px var(--shadow);
+            border: 1px solid rgba(196,162,101,0.1);
+        }
+
+        .bgm-card h4 {
+            font-family: 'Noto Serif JP', serif;
+            font-weight: 500;
+            margin-bottom: 12px;
+            letter-spacing: 1px;
+        }
+
+        .bgm-card p {
+            font-size: 14px;
+            color: var(--text-light);
+            line-height: 1.8;
+        }
+
+        .bgm-card .tag {
+            display: inline-block;
+            background: var(--cream);
+            color: var(--gold);
+            font-size: 11px;
+            font-weight: 700;
+            padding: 4px 12px;
+            border-radius: 4px;
+            letter-spacing: 1px;
+            margin-bottom: 12px;
+        }
+
+        /* Tips Section */
+        .tips-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+            margin-bottom: 60px;
+        }
+
+        .tip-card {
+            background: var(--white);
+            border-radius: 12px;
+            padding: 28px;
+            box-shadow: 0 2px 20px var(--shadow);
+            border-top: 3px solid var(--gold);
+        }
+
+        .tip-card .number {
+            font-family: 'Noto Serif JP', serif;
+            font-size: 32px;
+            color: var(--gold-light);
+            font-weight: 300;
+            margin-bottom: 12px;
+        }
+
+        .tip-card h4 {
+            font-family: 'Noto Serif JP', serif;
+            font-weight: 500;
+            margin-bottom: 10px;
+            letter-spacing: 1px;
+        }
+
+        .tip-card p {
+            font-size: 14px;
+            color: var(--text-light);
+            line-height: 1.8;
+        }
+
+        /* Progress Bar (Video Preview) */
+        .video-preview {
+            background: var(--dark);
+            border-radius: 16px;
+            padding: 40px;
+            margin: 40px 0;
+            color: var(--white);
+        }
+
+        .video-preview h3 {
+            font-family: 'Noto Serif JP', serif;
+            font-weight: 400;
+            font-size: 18px;
+            margin-bottom: 24px;
+            letter-spacing: 2px;
+            color: var(--gold);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: var(--dark-soft);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 20px;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--gold-light), var(--gold));
+            border-radius: 4px;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .progress-segments {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .segment {
+            text-align: center;
+            flex: 1;
+            cursor: pointer;
+            padding: 12px 4px;
+            border-radius: 8px;
+            transition: background 0.3s ease;
+        }
+
+        .segment:hover {
+            background: var(--dark-soft);
+        }
+
+        .segment.active {
+            background: var(--dark-soft);
+        }
+
+        .segment .seg-time {
+            font-size: 10px;
+            color: var(--gold);
+            letter-spacing: 1px;
+            margin-bottom: 4px;
+        }
+
+        .segment .seg-label {
+            font-size: 11px;
+            color: rgba(255,255,255,0.7);
+        }
+
+        .current-scene {
+            background: var(--dark-soft);
+            border-radius: 12px;
+            padding: 20px 24px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .current-scene .scene-num {
+            font-family: 'Noto Serif JP', serif;
+            font-size: 28px;
+            color: var(--gold);
+            font-weight: 300;
+            min-width: 50px;
+        }
+
+        .current-scene .scene-info h4 {
+            font-size: 15px;
+            margin-bottom: 4px;
+            letter-spacing: 1px;
+        }
+
+        .current-scene .scene-info p {
+            font-size: 13px;
+            color: rgba(255,255,255,0.5);
+        }
+
+        .play-btn {
+            background: var(--gold);
+            color: var(--dark);
+            border: none;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            font-size: 18px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: auto;
+            transition: transform 0.2s ease;
+        }
+
+        .play-btn:hover {
+            transform: scale(1.1);
+        }
+
+        /* CTA Section */
+        .cta-section {
+            background: linear-gradient(135deg, var(--dark) 0%, #2A2015 100%);
+            color: var(--white);
+            text-align: center;
+            padding: 60px 20px;
+            border-radius: 16px;
+            margin: 40px 0 60px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cta-section::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at 70% 30%, rgba(196,162,101,0.1) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        .cta-section h2 {
+            font-family: 'Noto Serif JP', serif;
+            font-weight: 400;
+            font-size: clamp(20px, 3vw, 28px);
+            letter-spacing: 4px;
+            margin-bottom: 16px;
+        }
+
+        .cta-section p {
+            color: rgba(255,255,255,0.6);
+            font-size: 14px;
+            margin-bottom: 8px;
+            letter-spacing: 1px;
+        }
+
+        .cta-section .phone {
+            font-family: 'Noto Serif JP', serif;
+            font-size: 24px;
+            color: var(--gold);
+            letter-spacing: 3px;
+            margin: 20px 0;
+        }
+
+        .cta-section .address {
+            font-size: 13px;
+            color: rgba(255,255,255,0.4);
+            letter-spacing: 2px;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 40px 20px;
+            font-size: 12px;
+            color: var(--text-light);
+            letter-spacing: 1px;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .hero { padding: 50px 16px; }
+
+            .timeline-line { display: none; }
+
+            .timeline-item {
+                display: flex;
+                flex-direction: column;
+                gap: 16px;
+            }
+
+            .timeline-item:nth-child(odd) .timeline-content,
+            .timeline-item:nth-child(even) .timeline-content {
+                text-align: left;
+                padding: 24px;
+                grid-column: auto;
+            }
+
+            .timeline-item:nth-child(odd) .timeline-image,
+            .timeline-item:nth-child(even) .timeline-image {
+                padding: 0;
+                grid-column: auto;
+                grid-row: auto;
+            }
+
+            .timeline-marker {
+                flex-direction: row;
+                gap: 12px;
+            }
+
+            .timeline-dot { margin-top: 0; }
+
+            .social-section { padding: 28px 20px; }
+
+            .progress-segments { flex-wrap: wrap; gap: 4px; }
+            .segment { min-width: 80px; }
+
+            .current-scene { flex-direction: column; text-align: center; }
+            .play-btn { margin: 12px auto 0; }
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in {
+            opacity: 0;
+            animation: fadeInUp 0.6s ease forwards;
+        }
+
+        .fade-in:nth-child(1) { animation-delay: 0.1s; }
+        .fade-in:nth-child(2) { animation-delay: 0.2s; }
+        .fade-in:nth-child(3) { animation-delay: 0.3s; }
+        .fade-in:nth-child(4) { animation-delay: 0.4s; }
+        .fade-in:nth-child(5) { animation-delay: 0.5s; }
+    </style>
+</head>
+<body>
+
+    <!-- Hero -->
+    <header class="hero">
+        <div class="hero-badge">Storyboard & Production Guide</div>
+        <h1>北新地 <span>大嵓埜</span></h1>
+        <p class="hero-subtitle">Instagram Reels 動画コンセプト ― 2月新メニュー</p>
+        <div class="hero-meta">
+            <span><span class="dot"></span>ミシュラン セレクテッドレストラン</span>
+            <span><span class="dot"></span>20秒 リール動画</span>
+            <span><span class="dot"></span>10シーン構成</span>
+        </div>
+    </header>
+
+    <div class="container">
+
+        <!-- Concept Overview -->
+        <div class="section-header">
+            <div class="label">Concept</div>
+            <h2>動画全体のコンセプト</h2>
+            <div class="divider"></div>
+        </div>
+
+        <div class="concept-grid">
+            <div class="concept-card fade-in">
+                <div class="icon">季</div>
+                <h3>テーマ</h3>
+                <p>「季節の恵みを味わう、特別なひととき」― 2月の新メニューを優雅に紹介し、視聴者に「ここで大切な人と過ごしたい」と思わせる構成。</p>
+            </div>
+            <div class="concept-card fade-in">
+                <div class="icon">的</div>
+                <h3>ターゲット</h3>
+                <p>高所得サラリーマン、経営者、ビジネスパーソン。大企業の接待、銀行員や経営者のビジネスディナー、特別な記念日利用を促進。</p>
+            </div>
+            <div class="concept-card fade-in">
+                <div class="icon">美</div>
+                <h3>ビジュアルスタイル</h3>
+                <p>スローモーション料理クローズアップ、スムーズなトランジション（フェード・ズーム）。暖かみのある照明エフェクトと上品なテキストオーバーレイ。</p>
+            </div>
+            <div class="concept-card fade-in">
+                <div class="icon">音</div>
+                <h3>BGM</h3>
+                <p>伝統的な琴や笛の落ち着いた和風BGM（"Japanese Garden"風）。ボリューム低めでテキスト・ナレーションに干渉しない設計。</p>
+            </div>
+        </div>
+
+        <!-- Interactive Video Preview -->
+        <div class="video-preview" id="videoPreview">
+            <h3>タイムライン プレビュー</h3>
+            <div class="progress-bar" id="progressBar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div class="progress-segments" id="segments">
+                <div class="segment active" data-scene="0" onclick="selectScene(0)">
+                    <div class="seg-time">0-2s</div>
+                    <div class="seg-label">イントロ</div>
+                </div>
+                <div class="segment" data-scene="1" onclick="selectScene(1)">
+                    <div class="seg-time">2-4s</div>
+                    <div class="seg-label">先付け</div>
+                </div>
+                <div class="segment" data-scene="2" onclick="selectScene(2)">
+                    <div class="seg-time">4-6s</div>
+                    <div class="seg-label">刺身</div>
+                </div>
+                <div class="segment" data-scene="3" onclick="selectScene(3)">
+                    <div class="seg-time">6-8s</div>
+                    <div class="seg-label">煮物</div>
+                </div>
+                <div class="segment" data-scene="4" onclick="selectScene(4)">
+                    <div class="seg-time">8-10s</div>
+                    <div class="seg-label">焼き物</div>
+                </div>
+                <div class="segment" data-scene="5" onclick="selectScene(5)">
+                    <div class="seg-time">10-12s</div>
+                    <div class="seg-label">揚げ物</div>
+                </div>
+                <div class="segment" data-scene="6" onclick="selectScene(6)">
+                    <div class="seg-time">12-14s</div>
+                    <div class="seg-label">強肴</div>
+                </div>
+                <div class="segment" data-scene="7" onclick="selectScene(7)">
+                    <div class="seg-time">14-16s</div>
+                    <div class="seg-label">ご飯</div>
+                </div>
+                <div class="segment" data-scene="8" onclick="selectScene(8)">
+                    <div class="seg-time">16-18s</div>
+                    <div class="seg-label">デザート</div>
+                </div>
+                <div class="segment" data-scene="9" onclick="selectScene(9)">
+                    <div class="seg-time">18-20s</div>
+                    <div class="seg-label">エンド</div>
+                </div>
+            </div>
+            <div class="current-scene" id="currentScene">
+                <div class="scene-num" id="sceneNum">01</div>
+                <div class="scene-info">
+                    <h4 id="sceneTitle">イントロ ― 柑橘の飾り付け</h4>
+                    <p id="sceneDesc">ゆっくりズームインして全体を映す。赤いリボンと季節のタグを強調。輝きエフェクトで高級感を演出。</p>
+                </div>
+                <button class="play-btn" id="playBtn" onclick="togglePlay()">&#9654;</button>
+            </div>
+        </div>
+
+        <!-- Storyboard Timeline -->
+        <div class="section-header">
+            <div class="label">Storyboard</div>
+            <h2>ストーリーボード</h2>
+            <div class="divider"></div>
+        </div>
+
+        <div class="timeline-container">
+            <div class="timeline-line"></div>
+
+            <!-- Scene 1: Intro -->
+            <div class="timeline-item">
+                <div class="timeline-content">
+                    <div class="scene-label">Scene 01</div>
+                    <h3>イントロ ― 柑橘の飾り付け</h3>
+                    <div class="action"><strong>カメラ:</strong> ゆっくりズームインして全体を映す。赤いリボンと「令和六年二月」タグを強調。</div>
+                    <div class="overlay-text">テキスト:「北新地 大嵓埜 ― ミシュランセレクテッドの懐石」</div>
+                    <p class="copy">「大切な接待や記念日に、季節の恵みを。」</p>
+                    <div class="action"><strong>エフェクト:</strong> 軽い輝きエフェクトで高級感を演出。</div>
+                </div>
+                <div class="timeline-marker">
+                    <span class="timeline-time">0-2s</span>
+                    <span class="timeline-dot"></span>
+                </div>
+                <div class="timeline-image">
+                    <img src="https://github.com/user-attachments/assets/6e9bb9c1-0ead-47de-b875-ac9dfde0c3b7" alt="柑橘の飾り付け" loading="lazy">
+                </div>
+            </div>
+
+            <!-- Scene 2: Sakizuke -->
+            <div class="timeline-item">
+                <div class="timeline-image">
+                    <img src="https://github.com/user-attachments/assets/b02cc12f-1be7-4498-835c-e002b4d5afa2" alt="先付け" loading="lazy">
+                </div>
+                <div class="timeline-marker">
+                    <span class="timeline-time">2-4s</span>
+                    <span class="timeline-dot"></span>
+                </div>
+                <div class="timeline-content">
+                    <div class="scene-label">Scene 02</div>
+                    <h3>先付け ― 季節野菜のハーモニー</h3>
+                    <div class="action"><strong>カメラ:</strong> クローズアップで新鮮な野菜の質感を見せる。</div>
+                    <div class="overlay-text">テキスト:「2月の先付け: 爽やかな季節野菜のハーモニー」</div>
+                    <p class="copy">「ビジネスパートナーとの会話が弾む、洗練された一品からスタート。」</p>
+                </div>
+            </div>
+
+            <!-- Scene 3: Sashimi -->
+            <div class="timeline-item">
+                <div class="timeline-content">
+                    <div class="scene-label">Scene 03</div>
+                    <h3>刺身 ― 海の恵みを華やかに</h3>
+                    <div class="action"><strong>カメラ:</strong> カラフルな盛り付けをパン（横移動）で見せる。</div>
+                    <div class="overlay-text">テキスト:「新鮮刺身: 海の恵みを華やかに」</div>
+                    <p class="copy">「経営者同士の特別な夜に、ミシュランの技が光る。」</p>
+                </div>
+                <div class="timeline-marker">
+                    <span class="timeline-time">4-6s</span>
+                    <span class="timeline-dot"></span>
+                </div>
+                <div class="timeline-image">
+                    <img src="https://github.com/user-attachments/assets/b3a7eefa-2fd5-4ce0-8830-d665a788b10d" alt="刺身盛り合わせ" loading="lazy">
+                </div>
+            </div>
+
+            <!-- Scene 4: Nimono -->
+            <div class="timeline-item">
+                <div class="timeline-image">
+                    <img src="https://github.com/user-attachments/assets/58250abe-6813-4005-9973-aaf2266b4ea6" alt="煮物" loading="lazy">
+                </div>
+                <div class="timeline-marker">
+                    <span class="timeline-time">6-8s</span>
+                    <span class="timeline-dot"></span>
+                </div>
+                <div class="timeline-content">
+                    <div class="scene-label">Scene 04</div>
+                    <h3>煮物 ― 牛肉と春の山菜</h3>
+                    <div class="action"><strong>カメラ:</strong> スローモーションで湯気をイメージ（編集で追加）。</div>
+                    <div class="overlay-text">テキスト:「温かな煮物: 牛肉と春の山菜」</div>
+                    <p class="copy">「銀行の重役接待に、伝統と革新の融合を。」</p>
+                </div>
+            </div>
+
+            <!-- Scene 5: Yakimono -->
+            <div class="timeline-item">
+                <div class="timeline-content">
+                    <div class="scene-label">Scene 05</div>
+                    <h3>焼き物 ― 香ばしい竹の子と帆立</h3>
+                    <div class="action"><strong>カメラ:</strong> グリルマークにズームイン。</div>
+                    <div class="overlay-text">テキスト:「焼き物: 香ばしい竹の子と帆立」</div>
+                    <p class="copy">「高所得者の記念日に、遊び心あふれる味わい。」</p>
+                </div>
+                <div class="timeline-marker">
+                    <span class="timeline-time">8-10s</span>
+                    <span class="timeline-dot"></span>
+                </div>
+                <div class="timeline-image">
+                    <img src="https://github.com/user-attachments/assets/89d7a632-b7be-46f6-b301-5feb0b31991d" alt="焼き物" loading="lazy">
+                </div>
+            </div>
+
+            <!-- Scene 6: Agemono -->
+            <div class="timeline-item">
+                <div class="timeline-image">
+                    <img src="https://github.com/user-attachments/assets/34173214-d90e-4556-b22f-75f53e756304" alt="揚げ物" loading="lazy">
+                </div>
+                <div class="timeline-marker">
+                    <span class="timeline-time">10-12s</span>
+                    <span class="timeline-dot"></span>
+                </div>
+                <div class="timeline-content">
+                    <div class="scene-label">Scene 06</div>
+                    <h3>揚げ物 ― サクサクの食感</h3>
+                    <div class="action"><strong>カメラ:</strong> 黄金色の皮をクローズアップ。</div>
+                    <div class="overlay-text">テキスト:「揚げ物: サクサクの食感で心を掴む」</div>
+                    <p class="copy">「大企業のビジネスディナーで、記憶に残る一皿。」</p>
+                </div>
+            </div>
+
+            <!-- Scene 7: Shiizakana + Soup -->
+            <div class="timeline-item">
+                <div class="timeline-content">
+                    <div class="scene-label">Scene 07</div>
+                    <h3>強肴 & 清湯 ― 締めの贅沢</h3>
+                    <div class="action"><strong>カメラ:</strong> クイックカットで手まり寿司と清湯スープを交互に。</div>
+                    <div class="overlay-text">テキスト:「手まり寿司 & 清湯: 締めの贅沢」</div>
+                    <p class="copy">「特別な日を締めくくる、優雅なフィナーレ。」</p>
+                </div>
+                <div class="timeline-marker">
+                    <span class="timeline-time">12-14s</span>
+                    <span class="timeline-dot"></span>
+                </div>
+                <div class="timeline-image">
+                    <img src="https://github.com/user-attachments/assets/a990a366-4d57-4cdd-8766-0c5d794f5bfc" alt="手まり寿司" loading="lazy">
+                </div>
+            </div>
+
+            <!-- Scene 8: Rice -->
+            <div class="timeline-item">
+                <div class="timeline-image">
+                    <img src="https://github.com/user-attachments/assets/ee7a5a4a-885d-4f95-b83c-5ee014652a4c" alt="土鍋ご飯" loading="lazy">
+                </div>
+                <div class="timeline-marker">
+                    <span class="timeline-time">14-16s</span>
+                    <span class="timeline-dot"></span>
+                </div>
+                <div class="timeline-content">
+                    <div class="scene-label">Scene 08</div>
+                    <h3>ご飯 ― えびと緑のハーモニー</h3>
+                    <div class="action"><strong>カメラ:</strong> 蓋を開けるようなエフェクト（編集でシミュレート）。</div>
+                    <div class="overlay-text">テキスト:「季節のご飯: えびと緑のハーモニー」</div>
+                    <p class="copy">「北新地の隠れ家で、至福の時を。」</p>
+                </div>
+            </div>
+
+            <!-- Scene 9: Dessert -->
+            <div class="timeline-item">
+                <div class="timeline-content">
+                    <div class="scene-label">Scene 09</div>
+                    <h3>デザート ― 苺・メロン・マンゴーの甘美</h3>
+                    <div class="action"><strong>カメラ:</strong> 甘いビジュアルをフェード。</div>
+                    <div class="overlay-text">テキスト:「デザート: 苺・メロン・マンゴーの甘美」</div>
+                    <p class="copy">「記念日の甘い余韻を、ミシュラン級のデザートで。」</p>
+                </div>
+                <div class="timeline-marker">
+                    <span class="timeline-time">16-18s</span>
+                    <span class="timeline-dot"></span>
+                </div>
+                <div class="timeline-image">
+                    <img src="https://github.com/user-attachments/assets/b39bf119-c360-47df-b8b1-5399b4445ab1" alt="デザート" loading="lazy">
+                </div>
+            </div>
+
+            <!-- Scene 10: End -->
+            <div class="timeline-item">
+                <div class="timeline-image">
+                    <div class="img-placeholder">
+                        北新地 大嵓埜<br>ロゴ / 外観
+                    </div>
+                </div>
+                <div class="timeline-marker">
+                    <span class="timeline-time">18-20s</span>
+                    <span class="timeline-dot"></span>
+                </div>
+                <div class="timeline-content">
+                    <div class="scene-label">Scene 10</div>
+                    <h3>エンドロール ― 予約誘導</h3>
+                    <div class="action"><strong>カメラ:</strong> レストラン外観やロゴをフェードアウト。</div>
+                    <div class="overlay-text">テキスト:「今すぐ予約！ TEL: 06-6341-3535」+「北新地FOODEARビル3F」</div>
+                    <p class="copy">「接待・記念日に、北新地 大嵓埜で特別なひとときを。ミシュランが認めた味を、あなたに。」</p>
+                    <div class="action"><strong>エフェクト:</strong> コールトゥアクションのボタン風アニメーション。</div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Hashtags & Caption -->
+        <div class="section-header">
+            <div class="label">Social Copy</div>
+            <h2>ハッシュタグ & キャプション</h2>
+            <div class="divider"></div>
+        </div>
+
+        <div class="social-section">
+            <div class="hashtags">
+                <span class="hashtag">#北新地大嵓埜</span>
+                <span class="hashtag">#ミシュラン懐石</span>
+                <span class="hashtag">#2月新メニュー</span>
+                <span class="hashtag">#接待ディナー</span>
+                <span class="hashtag">#記念日グルメ</span>
+                <span class="hashtag">#大阪高級和食</span>
+                <span class="hashtag">#北新地グルメ</span>
+                <span class="hashtag">#懐石料理</span>
+                <span class="hashtag">#大阪ディナー</span>
+                <span class="hashtag">#和食</span>
+            </div>
+            <div class="caption-box">
+                北新地 大嵓埜の2月新メニューが登場！ミシュラン選出の珠玉の懐石で、特別な接待や記念日を。季節の走りから名残まで、会話が弾む一皿を。ご予約はプロフィールリンクから
+                <br><br>
+                #北新地大嵓埜 #ミシュラン懐石 #2月新メニュー #接待ディナー #記念日グルメ #大阪高級和食 #北新地グルメ
+            </div>
+        </div>
+
+        <!-- BGM Section -->
+        <div class="section-header">
+            <div class="label">Audio</div>
+            <h2>BGM & サウンド提案</h2>
+            <div class="divider"></div>
+        </div>
+
+        <div class="bgm-section">
+            <div class="bgm-card">
+                <span class="tag">推奨</span>
+                <h4>和風アンビエント（琴 + 笛）</h4>
+                <p>伝統的な琴や笛の落ち着いたBGM。「Japanese Garden」風のアンビエント。Epidemic SoundやInstagramライブラリで検索。ボリュームは低めに設定。</p>
+            </div>
+            <div class="bgm-card">
+                <span class="tag">代替案</span>
+                <h4>モダン和ジャズ</h4>
+                <p>ソフトなピアノ + 和楽器のフュージョン。より都会的な印象で、北新地のビジネス客に響く。投稿時間帯（夕方）のムードに合致。</p>
+            </div>
+        </div>
+
+        <!-- Pro Tips -->
+        <div class="section-header">
+            <div class="label">Production Tips</div>
+            <h2>作成のヒント</h2>
+            <div class="divider"></div>
+        </div>
+
+        <div class="tips-grid">
+            <div class="tip-card">
+                <div class="number">01</div>
+                <h4>冒頭0.5秒の「シズル感」</h4>
+                <p>リール動画は最初の1秒が勝負。冒頭に土鍋ご飯の湯気やお出汁を注ぐ動きを0.2秒差し込んでからイントロに入ると、視覚的インパクトが強まります。</p>
+            </div>
+            <div class="tip-card">
+                <div class="number">02</div>
+                <h4>「静」と「動」の使い分け</h4>
+                <p>キーフレーム機能を活用。ズームインで料理の細部（刺身のツヤ、揚げ物の衣）に寄り、横長の盛り付けはスライドで。写真が動画のように生き生きと見えます。</p>
+            </div>
+            <div class="tip-card">
+                <div class="number">03</div>
+                <h4>テキストの「行間」で高級感</h4>
+                <p>游明朝や細い明朝体を使用し、カーニングを広めに。あえて全部書かず「五感で味わう、春の兆し」のような情緒的コピーを大きく見せるのがトレンド。</p>
+            </div>
+            <div class="tip-card">
+                <div class="number">04</div>
+                <h4>編集ツール & 投稿タイミング</h4>
+                <p>CapCutで画像インポート、トランジション追加。各クリップに暖色系フィルターで統一。投稿は夕方（ビジネスパーソンがチェックする時間帯）が最適。</p>
+            </div>
+            <div class="tip-card">
+                <div class="number">05</div>
+                <h4>エンゲージメント施策</h4>
+                <p>ストーリーズで「予約する？」のポールを追加。リール投稿後にストーリーズでシェアし、プロフィールリンクへ誘導。保存・シェアされやすいコンテンツに。</p>
+            </div>
+            <div class="tip-card">
+                <div class="number">06</div>
+                <h4>ビジュアル統一感</h4>
+                <p>全クリップに軽い暖色系フィルターを統一。高級感を出すために彩度はやや控えめに。コントラストを少し上げて料理の質感を強調します。</p>
+            </div>
+        </div>
+
+        <!-- CTA -->
+        <div class="cta-section">
+            <h2>北新地 大嵓埜</h2>
+            <p>ミシュランガイド セレクテッドレストラン</p>
+            <div class="phone">06-6341-3535</div>
+            <p class="address">大阪市北区曽根崎新地1丁目 北新地FOODEARビル 3F</p>
+        </div>
+
+    </div>
+
+    <footer>
+        &copy; 2025 Instagram Reels Storyboard ― 北新地 大嵓埜 Production Guide
+    </footer>
+
+    <script>
+        const scenes = [
+            { num: '01', title: 'イントロ ― 柑橘の飾り付け', desc: 'ゆっくりズームインして全体を映す。赤いリボンと季節のタグを強調。輝きエフェクトで高級感を演出。' },
+            { num: '02', title: '先付け ― 季節野菜のハーモニー', desc: 'クローズアップで新鮮な野菜の質感を見せる。洗練された一品からスタート。' },
+            { num: '03', title: '刺身 ― 海の恵みを華やかに', desc: 'カラフルな盛り付けをパン（横移動）で見せる。ミシュランの技が光る。' },
+            { num: '04', title: '煮物 ― 牛肉と春の山菜', desc: 'スローモーションで湯気をイメージ。伝統と革新の融合を表現。' },
+            { num: '05', title: '焼き物 ― 香ばしい竹の子と帆立', desc: 'グリルマークにズームイン。遊び心あふれる味わいを強調。' },
+            { num: '06', title: '揚げ物 ― サクサクの食感', desc: '黄金色の皮をクローズアップ。記憶に残る一皿。' },
+            { num: '07', title: '強肴 & 清湯 ― 締めの贅沢', desc: 'クイックカットで手まり寿司と清湯スープを交互に。優雅なフィナーレ。' },
+            { num: '08', title: 'ご飯 ― えびと緑のハーモニー', desc: '蓋を開けるようなエフェクト。北新地の隠れ家で至福の時。' },
+            { num: '09', title: 'デザート ― 苺・メロン・マンゴーの甘美', desc: '甘いビジュアルをフェード。記念日の甘い余韻。' },
+            { num: '10', title: 'エンドロール ― 予約誘導', desc: 'レストラン外観やロゴをフェードアウト。CTAボタン風アニメーション。' }
+        ];
+
+        let currentSceneIndex = 0;
+        let isPlaying = false;
+        let playInterval = null;
+
+        function selectScene(index) {
+            currentSceneIndex = index;
+            const scene = scenes[index];
+            document.getElementById('sceneNum').textContent = scene.num;
+            document.getElementById('sceneTitle').textContent = scene.title;
+            document.getElementById('sceneDesc').textContent = scene.desc;
+            document.getElementById('progressFill').style.width = ((index + 1) / scenes.length * 100) + '%';
+
+            document.querySelectorAll('.segment').forEach((seg, i) => {
+                seg.classList.toggle('active', i === index);
+            });
+        }
+
+        function togglePlay() {
+            const btn = document.getElementById('playBtn');
+            if (isPlaying) {
+                clearInterval(playInterval);
+                btn.innerHTML = '&#9654;';
+                isPlaying = false;
+            } else {
+                isPlaying = true;
+                btn.innerHTML = '&#9646;&#9646;';
+                currentSceneIndex = 0;
+                selectScene(0);
+                playInterval = setInterval(() => {
+                    currentSceneIndex++;
+                    if (currentSceneIndex >= scenes.length) {
+                        clearInterval(playInterval);
+                        btn.innerHTML = '&#9654;';
+                        isPlaying = false;
+                        return;
+                    }
+                    selectScene(currentSceneIndex);
+                }, 2000);
+            }
+        }
+
+        // Intersection Observer for fade-in animations
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.animationPlayState = 'running';
+                }
+            });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll('.fade-in').forEach(el => {
+            el.style.animationPlayState = 'paused';
+            observer.observe(el);
+        });
+
+        // Hashtag copy on click
+        document.querySelectorAll('.hashtag').forEach(tag => {
+            tag.addEventListener('click', () => {
+                const text = tag.textContent;
+                if (navigator.clipboard) {
+                    navigator.clipboard.writeText(text);
+                    const orig = tag.textContent;
+                    tag.textContent = 'Copied!';
+                    setTimeout(() => { tag.textContent = orig; }, 1000);
+                }
+            });
+        });
+    </script>
+</body>
+</html>
