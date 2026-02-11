@@ -260,10 +260,17 @@ def draw_gradient_overlay(frame):
 def get_font(size):
     """フォント取得（日本語対応のシステムフォントを検索）"""
     font_paths = [
-        "/usr/share/fonts/opentype/ipafont-gothic/ipagp.ttf",   # IPA Pゴシック（プロポーショナル）
-        "/usr/share/fonts/opentype/ipafont-gothic/ipag.ttf",    # IPAゴシック
-        "/usr/share/fonts/truetype/fonts-japanese-gothic.ttf",   # IPAゴシック（別パス）
-        "/usr/share/fonts/truetype/wqy/wqy-zenhei.ttc",        # WenQuanYi
+        # macOS
+        "/System/Library/Fonts/ヒラギノ角ゴシック W3.ttc",
+        "/System/Library/Fonts/ヒラギノ角ゴシック W6.ttc",
+        "/System/Library/Fonts/Hiragino Sans GB.ttc",
+        "/System/Library/Fonts/ヒラギノ明朝 ProN.ttc",
+        "/Library/Fonts/Arial Unicode.ttf",
+        # Linux
+        "/usr/share/fonts/opentype/ipafont-gothic/ipagp.ttf",
+        "/usr/share/fonts/opentype/ipafont-gothic/ipag.ttf",
+        "/usr/share/fonts/truetype/fonts-japanese-gothic.ttf",
+        "/usr/share/fonts/truetype/wqy/wqy-zenhei.ttc",
         "/usr/share/fonts/opentype/noto/NotoSerifCJK-Regular.ttc",
         "/usr/share/fonts/noto-cjk/NotoSerifCJK-Regular.ttc",
         "/usr/share/fonts/truetype/noto/NotoSansCJK-Regular.ttc",
