@@ -1,3 +1,5 @@
 output/frames/
+output/.cache/
 output/reels_video.gif
 output/reels_video.webp
+output/reels_video_fullsize.webp
