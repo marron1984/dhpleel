@@ -48,9 +48,9 @@ BGM_FILE = "bgm.mp3"        # カスタムBGMファイル（プロジェクト�
 
 # ── シーン定義 ─────────────────────────────────────
 SCENES = [
-    {
+    {   # オープニング — 店名
         "image": "https://github.com/user-attachments/assets/6e9bb9c1-0ead-47de-b875-ac9dfde0c3b7",
-        "duration": 3.5,
+        "duration": 3.2,
         "effect": "zoom_in",
         "texts": [
             {"text": "MICHELIN SELECTED", "y": 0.32, "size": 16, "color": GOLD, "spacing": 6, "font": "accent"},
@@ -58,102 +58,81 @@ SCENES = [
             {"text": "北新地  大嵓埜", "y": 0.43, "size": 40, "color": WHITE, "spacing": 12, "font": "title"},
             {"text": "季節の恵みを味わう、特別なひととき", "y": 0.51, "size": 16, "color": GOLD_LIGHT, "spacing": 3, "font": "body"},
         ],
-        "text_delay": 0.6,
+        "text_delay": 0.5,
     },
-    {
+    {   # 先付け
         "image": "https://github.com/user-attachments/assets/b02cc12f-1be7-4498-835c-e002b4d5afa2",
-        "duration": 2.8,
+        "duration": 2.5,
         "effect": "zoom_out",
         "texts": [
             {"text": "先付け", "y": 0.78, "size": 34, "color": WHITE, "spacing": 8, "align": "left", "font": "title"},
             {"text": "爽やかな季節野菜のハーモニー", "y": 0.85, "size": 14, "color": (220, 220, 220), "spacing": 2, "align": "left", "font": "body"},
         ],
-        "text_delay": 0.5,
+        "text_delay": 0.4,
     },
-    {
+    {   # 刺身
         "image": "https://github.com/user-attachments/assets/b3a7eefa-2fd5-4ce0-8830-d665a788b10d",
-        "duration": 2.8,
+        "duration": 2.5,
         "effect": "pan_right",
         "texts": [
             {"text": "刺  身", "y": 0.78, "size": 34, "color": WHITE, "spacing": 8, "align": "left", "font": "title"},
             {"text": "海の恵みを華やかに", "y": 0.85, "size": 14, "color": (220, 220, 220), "spacing": 2, "align": "left", "font": "body"},
         ],
-        "text_delay": 0.5,
+        "text_delay": 0.4,
     },
-    {
-        "image": "https://github.com/user-attachments/assets/58250abe-6813-4005-9973-aaf2266b4ea6",
-        "duration": 2.8,
-        "effect": "zoom_tilt",
-        "texts": [
-            {"text": "煮  物", "y": 0.78, "size": 34, "color": WHITE, "spacing": 8, "align": "left", "font": "title"},
-            {"text": "牛肉と春の山菜", "y": 0.85, "size": 14, "color": (220, 220, 220), "spacing": 2, "align": "left", "font": "body"},
-        ],
-        "text_delay": 0.5,
-    },
-    {
+    {   # 焼き物
         "image": "https://github.com/user-attachments/assets/89d7a632-b7be-46f6-b301-5feb0b31991d",
-        "duration": 2.6,
+        "duration": 2.5,
         "effect": "zoom_in",
         "texts": [
             {"text": "焼き物", "y": 0.78, "size": 34, "color": WHITE, "spacing": 8, "align": "left", "font": "title"},
             {"text": "香ばしい竹の子と帆立", "y": 0.85, "size": 14, "color": (220, 220, 220), "spacing": 2, "align": "left", "font": "body"},
         ],
-        "text_delay": 0.5,
+        "text_delay": 0.4,
     },
-    {
+    {   # 揚げ物
         "image": "https://github.com/user-attachments/assets/34173214-d90e-4556-b22f-75f53e756304",
-        "duration": 2.6,
+        "duration": 2.3,
         "effect": "pan_left",
         "texts": [
             {"text": "揚げ物", "y": 0.78, "size": 34, "color": WHITE, "spacing": 8, "align": "left", "font": "title"},
             {"text": "サクサクの食感で心を掴む", "y": 0.85, "size": 14, "color": (220, 220, 220), "spacing": 2, "align": "left", "font": "body"},
         ],
-        "text_delay": 0.5,
+        "text_delay": 0.4,
     },
-    {
+    {   # 強肴
         "image": "https://github.com/user-attachments/assets/a990a366-4d57-4cdd-8766-0c5d794f5bfc",
-        "duration": 2.4,
+        "duration": 2.3,
         "effect": "zoom_out",
         "texts": [
             {"text": "強  肴", "y": 0.78, "size": 34, "color": WHITE, "spacing": 8, "align": "left", "font": "title"},
             {"text": "手まり寿司の贅沢", "y": 0.85, "size": 14, "color": (220, 220, 220), "spacing": 2, "align": "left", "font": "body"},
         ],
-        "text_delay": 0.5,
+        "text_delay": 0.4,
     },
-    {
-        "image": "https://github.com/user-attachments/assets/d192340c-a5af-4ef6-acd7-56ed93cb771f",
-        "duration": 2.4,
-        "effect": "zoom_tilt",
-        "texts": [
-            {"text": "清  湯", "y": 0.78, "size": 34, "color": WHITE, "spacing": 8, "align": "left", "font": "title"},
-            {"text": "優雅なフィナーレ", "y": 0.85, "size": 14, "color": (220, 220, 220), "spacing": 2, "align": "left", "font": "body"},
-        ],
-        "text_delay": 0.5,
-    },
-    {
+    {   # ご飯
         "image": "https://github.com/user-attachments/assets/ee7a5a4a-885d-4f95-b83c-5ee014652a4c",
-        "duration": 2.8,
-        "effect": "zoom_in",
+        "duration": 2.5,
+        "effect": "zoom_tilt",
         "texts": [
             {"text": "ご  飯", "y": 0.78, "size": 34, "color": WHITE, "spacing": 8, "align": "left", "font": "title"},
             {"text": "えびと緑のハーモニー", "y": 0.85, "size": 14, "color": (220, 220, 220), "spacing": 2, "align": "left", "font": "body"},
         ],
-        "text_delay": 0.5,
-        "fade_in": True,
+        "text_delay": 0.4,
     },
-    {
+    {   # デザート
         "image": "https://github.com/user-attachments/assets/b39bf119-c360-47df-b8b1-5399b4445ab1",
-        "duration": 2.8,
-        "effect": "zoom_out",
+        "duration": 2.5,
+        "effect": "zoom_in",
         "texts": [
             {"text": "デザート", "y": 0.78, "size": 34, "color": WHITE, "spacing": 8, "align": "left", "font": "title"},
             {"text": "苺・メロン・マンゴーの甘美", "y": 0.85, "size": 14, "color": (220, 220, 220), "spacing": 2, "align": "left", "font": "body"},
         ],
-        "text_delay": 0.5,
+        "text_delay": 0.4,
     },
-    {
+    {   # エンディング — 店舗情報
         "image": "https://github.com/user-attachments/assets/6e9bb9c1-0ead-47de-b875-ac9dfde0c3b7",
-        "duration": 4.0,
+        "duration": 3.8,
         "effect": "zoom_in",
         "texts": [
             {"text": "接待・記念日に", "y": 0.30, "size": 18, "color": WHITE, "spacing": 4, "font": "body"},
@@ -162,7 +141,7 @@ SCENES = [
             {"text": "06-6341-3535", "y": 0.54, "size": 28, "color": GOLD, "spacing": 5, "font": "accent"},
             {"text": "北新地 FOODEAR ビル 3F", "y": 0.61, "size": 13, "color": (180, 180, 180), "spacing": 2, "font": "body"},
         ],
-        "text_delay": 0.5,
+        "text_delay": 0.4,
     },
 ]
 
@@ -216,22 +195,22 @@ def apply_ken_burns(img, effect, progress, canvas_w, canvas_h):
     t = ease_in_out(progress)  # スムーズなイージング
 
     if effect == "zoom_in":
-        scale = 1.0 + 0.07 * t       # 控えめ（0.15→0.07）
+        scale = 1.0 + 0.09 * t
         cx, cy = bw / 2, bh / 2
     elif effect == "zoom_out":
-        scale = 1.07 - 0.07 * t       # 控えめ
+        scale = 1.09 - 0.09 * t
         cx, cy = bw / 2, bh / 2
     elif effect == "pan_right":
-        scale = 1.05
-        cx = bw / 2 + (bw * 0.025) * (2 * t - 1)  # 移動量半減
+        scale = 1.06
+        cx = bw / 2 + (bw * 0.03) * (2 * t - 1)
         cy = bh / 2
     elif effect == "pan_left":
-        scale = 1.05
-        cx = bw / 2 - (bw * 0.025) * (2 * t - 1)  # 移動量半減
+        scale = 1.06
+        cx = bw / 2 - (bw * 0.03) * (2 * t - 1)
         cy = bh / 2
     elif effect == "zoom_tilt":
-        scale = 1.0 + 0.05 * t        # 控えめ
-        cx = bw / 2 + math.sin(t * 0.3) * 3
+        scale = 1.0 + 0.06 * t
+        cx = bw / 2 + math.sin(t * 0.3) * 4
         cy = bh / 2
     else:
         scale = 1.0
@@ -560,7 +539,7 @@ def generate_video():
     all_frames = []
     frame_count = 0
     total_scenes = len(SCENES)
-    crossfade_duration = 0.6  # ゆったりクロスフェード
+    crossfade_duration = 0.4  # クロスフェード
 
     for si, scene in enumerate(SCENES):
         duration = scene["duration"]
