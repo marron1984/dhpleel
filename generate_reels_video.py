@@ -1,14 +1,15 @@
 #!/usr/bin/env python3
 """
-北新地 大嵓埜 — Instagram Reels 動画生成スクリプト（2026 最先端シネマティック版）
+北新地 大嵓埜 — Instagram Reels 動画生成スクリプト（一品一会 ギャラリー版）
 
-最新Reelsトレンド × 高級感:
-  - シネマティック映像演出（フィルムグレイン・カラーグレーディング・ビネット）
-  - ボケパーティクル（浮遊光の粒子）
-  - ブラーフラッシュトランジション
-  - 1文字ずつリビールアニメーション
-  - ゴールドライン装飾アニメーション
-  - 集客フック → ブランドリビール → ショーケース → CTA
+コンセプト: 美術館のように一品ずつ静かに魅せる
+  - ギャラリーフレーム（余白 + 細い金線ボーダー）
+  - ゆったりクロスフェード（フラッシュなし）
+  - 漢数字のコース番号（壱・弐・参…）
+  - タイプライター風テキスト
+  - モノクロ→カラーリビール
+  - フィルムグレイン + ビネット
+  - ミニマルな品格で惹きつけ、最後にだけCTA
 
 使い方:
     python3 generate_reels_video.py
@@ -32,18 +33,25 @@ import shutil
 import struct
 import subprocess
 import urllib.request
-from PIL import Image, ImageDraw, ImageFont, ImageFilter
+from PIL import Image, ImageDraw, ImageFont, ImageFilter, ImageEnhance
 
 # ── 設定 ──────────────────────────────────────────
-WIDTH = 540                # 9:16 Reels解像度
+WIDTH = 540
 HEIGHT = 960
-FPS = 24                   # なめらかなフレームレート
-BG_COLOR = (10, 10, 10)
-GOLD = (196, 162, 101)
-GOLD_LIGHT = (232, 213, 168)
-GOLD_DIM = (140, 115, 70)
-WHITE = (255, 255, 255)
-WARM_WHITE = (255, 248, 238)
+FPS = 24
+BG_COLOR = (12, 12, 12)
+GOLD = (186, 155, 95)
+GOLD_LIGHT = (218, 198, 148)
+GOLD_DIM = (120, 100, 60)
+WHITE = (240, 237, 230)
+GRAY = (130, 127, 122)
+DARK_GRAY = (60, 58, 55)
+
+# ギャラリーフレーム設定
+FRAME_MARGIN = 40          # 写真周囲の余白
+FRAME_BORDER = 1           # 金線ボーダーの太さ
+PHOTO_AREA_TOP = 120       # 写真エリアの上端
+PHOTO_AREA_BOTTOM = 680    # 写真エリアの下端
 
 OUTPUT_DIR = "output"
 FRAMES_DIR = os.path.join(OUTPUT_DIR, "frames")
@@ -61,134 +69,61 @@ IMG_DESSERT  = "https://github.com/user-attachments/assets/b39bf119-c360-47df-b8
 IMG_NIMONO   = "https://github.com/user-attachments/assets/58250abe-6813-4005-9973-aaf2266b4ea6"
 IMG_OWAN     = "https://github.com/user-attachments/assets/d192340c-a5af-4ef6-acd7-56ed93cb771f"
 
-# ── シーン定義（2026 シネマティック・集客特化版）──────────────
-# transition: "blur_flash" = ブラー→白フラッシュ, "cut" = ハードカット
-# anim: "bounce" = ポップイン, "slide_up" = 下からスライド,
-#        "fade" = 通常フェード, "char_reveal" = 1文字ずつリビール
+# ── 懐石コース（漢数字ナンバリング）──────────────────────
+COURSE = [
+    {"image": IMG_SAKIZUKE, "number": "壱", "name": "先付",  "sub": "Sakizuke"},
+    {"image": IMG_SASHIMI,  "number": "弐", "name": "向付",  "sub": "Mukōzuke"},
+    {"image": IMG_NIMONO,   "number": "参", "name": "煮物椀","sub": "Nimono-wan"},
+    {"image": IMG_YAKIMONO, "number": "肆", "name": "焼物",  "sub": "Yakimono"},
+    {"image": IMG_SHIIZAKA, "number": "伍", "name": "強肴",  "sub": "Shiizakana"},
+    {"image": IMG_AGEMONO,  "number": "陸", "name": "揚物",  "sub": "Agemono"},
+    {"image": IMG_OWAN,     "number": "漆", "name": "清湯",  "sub": "Sumashi"},
+    {"image": IMG_GOHAN,    "number": "捌", "name": "御飯",  "sub": "Gohan"},
+    {"image": IMG_DESSERT,  "number": "玖", "name": "甘味",  "sub": "Kanmi"},
+]
+
+# ── シーン構成 ──────────────────────────────────────
+# type: "opening" / "course" / "text_card" / "cta"
 SCENES = [
-    # ━━ PHASE 1: ラピッドモンタージュ（0-2秒）━━━━━━━━━━━
-    # テキストなし、高速4連射 → スクロール停止率MAX
-    {   "image": IMG_SASHIMI,  "duration": 0.5, "effect": "zoom_in",
-        "texts": [], "transition": "cut" },
-    {   "image": IMG_DESSERT,  "duration": 0.5, "effect": "zoom_out",
-        "texts": [], "transition": "cut" },
-    {   "image": IMG_SHIIZAKA, "duration": 0.5, "effect": "pan_right",
-        "texts": [], "transition": "cut" },
-    {   "image": IMG_AGEMONO,  "duration": 0.5, "effect": "zoom_in",
-        "texts": [], "transition": "cut" },
+    # ━━ OPENING: 静かな導入（0-3秒）━━━━━━━━━━━━━━
+    {"type": "opening", "duration": 3.0},
 
-    # ━━ PHASE 2: 店名リビール（2-5秒）━━━━━━━━━━━━━━
-    {   # 5. テキストフック（黒背景）
-        "image": None, "duration": 1.8, "effect": "none",
-        "texts": [
-            {"text": "北新地の隠れ家で", "y": 0.36, "size": 26, "color": WARM_WHITE, "font": "body", "anim": "char_reveal"},
-            {"text": "至福の一夜を", "y": 0.46, "size": 48, "color": GOLD, "spacing": 10, "font": "title", "anim": "char_reveal"},
-        ],
-        "gold_line": {"y": 0.42, "delay": 0.3},
-        "text_delay": 0.0, "transition": "blur_flash",
-    },
-    {   # 6. ミシュラン + 店名
-        "image": IMG_EXTERIOR, "duration": 2.0, "effect": "zoom_in",
-        "texts": [
-            {"text": "MICHELIN SELECTED", "y": 0.33, "size": 20, "color": GOLD, "spacing": 6, "font": "accent", "anim": "fade"},
-            {"text": "大嵓埜", "y": 0.44, "size": 56, "color": WHITE, "spacing": 16, "font": "title", "anim": "char_reveal"},
-        ],
-        "gold_line": {"y": 0.39, "delay": 0.2},
-        "text_delay": 0.1, "transition": "blur_flash",
-    },
+    # ━━ COURSE PARADE: 一品ずつ（3-18秒）━━━━━━━━━━━━
+    {"type": "course", "course_idx": 0, "duration": 1.5},
+    {"type": "course", "course_idx": 1, "duration": 1.5},
+    {"type": "course", "course_idx": 2, "duration": 1.5},
+    {"type": "course", "course_idx": 3, "duration": 1.5},
+    {"type": "course", "course_idx": 4, "duration": 1.5},
+    {"type": "course", "course_idx": 5, "duration": 1.3},
+    {"type": "course", "course_idx": 6, "duration": 1.3},
+    {"type": "course", "course_idx": 7, "duration": 1.3},
+    {"type": "course", "course_idx": 8, "duration": 1.3},
 
-    # ━━ PHASE 3: 料理ショーケース（5-10.5秒）━━━━━━━━━━━━
-    {   "image": IMG_SAKIZUKE, "duration": 1.0, "effect": "zoom_out",
-        "texts": [
-            {"text": "先付け", "y": 0.76, "size": 44, "color": WHITE, "spacing": 10, "align": "left", "font": "title", "anim": "slide_up"},
-        ],
-        "text_delay": 0.0, "transition": "blur_flash",
-    },
-    {   "image": IMG_YAKIMONO, "duration": 1.0, "effect": "pan_left",
-        "texts": [
-            {"text": "焼き物", "y": 0.76, "size": 44, "color": WHITE, "spacing": 10, "align": "left", "font": "title", "anim": "slide_up"},
-        ],
-        "text_delay": 0.0, "transition": "blur_flash",
-    },
-    {   "image": IMG_NIMONO, "duration": 1.0, "effect": "zoom_in",
-        "texts": [
-            {"text": "煮  物", "y": 0.76, "size": 44, "color": WHITE, "spacing": 10, "align": "left", "font": "title", "anim": "slide_up"},
-        ],
-        "text_delay": 0.0, "transition": "blur_flash",
-    },
-    {   "image": IMG_OWAN, "duration": 1.0, "effect": "zoom_tilt",
-        "texts": [
-            {"text": "清  湯", "y": 0.76, "size": 44, "color": WHITE, "spacing": 10, "align": "left", "font": "title", "anim": "slide_up"},
-        ],
-        "text_delay": 0.0, "transition": "blur_flash",
-    },
-    {   "image": IMG_GOHAN, "duration": 1.0, "effect": "pan_right",
-        "texts": [
-            {"text": "ご  飯", "y": 0.76, "size": 44, "color": WHITE, "spacing": 10, "align": "left", "font": "title", "anim": "slide_up"},
-        ],
-        "text_delay": 0.0, "transition": "blur_flash",
-    },
-
-    # ━━ PHASE 4: 価格 + 緊急性（10.5-14.5秒）━━━━━━━━━━━━
-    {   # 12. 価格アンカー
-        "image": IMG_EXTERIOR, "duration": 2.2, "effect": "zoom_in",
-        "texts": [
-            {"text": "全11品の特別懐石", "y": 0.34, "size": 24, "color": WARM_WHITE, "font": "body", "anim": "slide_up"},
-            {"text": "¥30,000〜", "y": 0.43, "size": 60, "color": GOLD, "spacing": 6, "font": "title", "anim": "bounce"},
-        ],
-        "gold_line": {"y": 0.39, "delay": 0.15},
-        "text_delay": 0.1, "transition": "blur_flash",
-    },
-    {   # 13. 緊急性
-        "image": IMG_EXTERIOR, "duration": 1.8, "effect": "zoom_in",
-        "texts": [
-            {"text": "完全予約制", "y": 0.38, "size": 40, "color": WHITE, "spacing": 10, "font": "title", "anim": "char_reveal"},
-            {"text": "席数限定", "y": 0.48, "size": 36, "color": GOLD, "spacing": 8, "font": "title", "anim": "char_reveal"},
-        ],
-        "text_delay": 0.15, "transition": "blur_flash",
-    },
-
-    # ━━ PHASE 5: CTA（14.5-18.5秒）━━━━━━━━━━━━━━━━━
-    {   # 14. 予約誘導
-        "image": IMG_EXTERIOR, "duration": 3.5, "effect": "zoom_in",
-        "texts": [
-            {"text": "ご予約・お問い合わせ", "y": 0.26, "size": 20, "color": (200, 200, 200), "font": "body", "anim": "fade"},
-            {"text": "06-6341-3535", "y": 0.34, "size": 48, "color": GOLD, "spacing": 6, "font": "accent", "anim": "bounce"},
-            {"text": "大嵓埜", "y": 0.50, "size": 48, "color": WHITE, "spacing": 14, "font": "title", "anim": "char_reveal"},
-            {"text": "北新地 FOODEAR ビル 3F", "y": 0.59, "size": 16, "color": (180, 180, 180), "font": "body"},
-            {"text": "DMまたはお電話で予約", "y": 0.68, "size": 26, "color": GOLD, "spacing": 3, "font": "body", "anim": "bounce"},
-            {"text": "▶ プロフィールのリンクから", "y": 0.74, "size": 20, "color": GOLD_LIGHT, "font": "body", "anim": "slide_up"},
-        ],
-        "gold_line": {"y": 0.44, "delay": 0.25},
-        "text_delay": 0.12, "transition": "blur_flash",
-    },
+    # ━━ CLOSING: 余韻 + CTA（18-23秒）━━━━━━━━━━━━━━
+    {"type": "text_card", "duration": 2.0},
+    {"type": "cta", "duration": 3.5},
 ]
 
 
 # ── ヘルパー関数 ──────────────────────────────────
 
 def download_image(url, cache_dir="output/.cache"):
-    """画像をダウンロードしてPIL Imageとして返す（キャッシュ付き）"""
     os.makedirs(cache_dir, exist_ok=True)
     filename = url.split("/")[-1]
     cache_path = os.path.join(cache_dir, filename)
-
     if os.path.exists(cache_path):
         print(f"  [cache] {filename}")
         return Image.open(cache_path).convert("RGB")
-
     print(f"  [download] {url[:80]}...")
     req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
     with urllib.request.urlopen(req, timeout=30) as resp:
         data = resp.read()
-
     img = Image.open(io.BytesIO(data)).convert("RGB")
     img.save(cache_path, "JPEG", quality=90)
     return img
 
 
 def fit_cover(img, w, h):
-    """画像をcoverモードでリサイズ＆クロップ"""
     iw, ih = img.size
     scale = max(w / iw, h / ih)
     nw, nh = int(iw * scale), int(ih * scale)
@@ -199,276 +134,20 @@ def fit_cover(img, w, h):
 
 
 def ease_in_out(t):
-    """スムーズなイージング"""
     return t * t * (3.0 - 2.0 * t)
 
 
-def ease_out_back(t):
-    """バウンス風イージング（オーバーシュート→戻る）"""
-    c1 = 1.70158
-    c3 = c1 + 1
-    return 1 + c3 * pow(t - 1, 3) + c1 * pow(t - 1, 2)
-
-
 def ease_out_cubic(t):
-    """滑らかな減速イージング"""
     return 1 - pow(1 - t, 3)
 
 
-# ── シネマティック映像エフェクト（高速LUT版）──────────────
-
-# カラーグレーディング用LUT（起動時に1回だけ計算）
-_COLOR_LUT_R = None
-_COLOR_LUT_G = None
-_COLOR_LUT_B = None
-_VIGNETTE_MASK = None
+def ease_out_quart(t):
+    return 1 - pow(1 - t, 4)
 
 
-def _build_color_luts():
-    """カラーグレーディングLUTをビルド（各チャンネル256値のマッピング）"""
-    global _COLOR_LUT_R, _COLOR_LUT_G, _COLOR_LUT_B
-
-    def make_lut(shadow_shift, highlight_shift, gamma):
-        lut = []
-        for i in range(256):
-            v = i / 255.0
-            v = pow(v, gamma)
-            if v < 0.5:
-                v += shadow_shift * (0.5 - v) * 0.15
-            else:
-                v += highlight_shift * (v - 0.5) * 0.08
-            lut.append(max(0, min(255, int(v * 255))))
-        return lut
-
-    _COLOR_LUT_R = make_lut(shadow_shift=0.6, highlight_shift=0.1, gamma=0.97)
-    _COLOR_LUT_G = make_lut(shadow_shift=0.2, highlight_shift=0.0, gamma=1.0)
-    _COLOR_LUT_B = make_lut(shadow_shift=-0.3, highlight_shift=-0.1, gamma=1.03)
-
-
-def _build_vignette_mask(w, h):
-    """ビネットマスクを1回だけ生成"""
-    global _VIGNETTE_MASK
-    mask = Image.new("L", (w, h))
-    pixels = mask.load()
-    cx, cy = w / 2.0, h / 2.0
-    max_dist = math.sqrt(cx * cx + cy * cy)
-
-    for y in range(h):
-        for x in range(w):
-            dist = math.sqrt((x - cx) ** 2 + (y - cy) ** 2)
-            ratio = dist / max_dist
-            if ratio < 0.4:
-                v = 0
-            else:
-                falloff = (ratio - 0.4) / 0.6
-                v = int(255 * falloff * falloff * 0.50)
-            pixels[x, y] = min(255, v)
-
-    _VIGNETTE_MASK = mask
-
-
-def apply_film_grain(frame, intensity=10, seed=None):
-    """フィルムグレインテクスチャ（高速版：小さいノイズをリサイズ）"""
-    rng = random.Random(seed)
-    # 小さいサイズでノイズ生成 → リサイズで高速化
-    sw, sh = 135, 240  # 1/4サイズ
-    grain_data = bytes(max(0, min(255, int(rng.gauss(128, intensity)))) for _ in range(sw * sh))
-    grain_small = Image.frombytes("L", (sw, sh), grain_data)
-    grain = grain_small.resize(frame.size, Image.BILINEAR)
-    grain_rgb = Image.merge("RGB", [grain, grain, grain])
-    return Image.blend(frame, grain_rgb, 0.05)
-
-
-def apply_color_grade(frame):
-    """シネマティックカラーグレーディング（LUT版・高速）"""
-    if _COLOR_LUT_R is None:
-        _build_color_luts()
-
-    r, g, b = frame.split()
-    r = r.point(_COLOR_LUT_R)
-    g = g.point(_COLOR_LUT_G)
-    b = b.point(_COLOR_LUT_B)
-    graded = Image.merge("RGB", [r, g, b])
-    # 彩度をわずかに落とす（高級感）
-    gray = graded.convert("L").convert("RGB")
-    return Image.blend(graded, gray, 0.08)
-
-
-def apply_vignette(frame):
-    """ビネットエフェクト（プリコンピュート済みマスク版・高速）"""
-    w, h = frame.size
-    if _VIGNETTE_MASK is None or _VIGNETTE_MASK.size != (w, h):
-        _build_vignette_mask(w, h)
-
-    black = Image.new("RGB", (w, h), (0, 0, 0))
-    # マスク値が高い=暗い（ビネット）、低い=元画像
-    return Image.composite(black, frame, _VIGNETTE_MASK)
-
-
-def generate_bokeh_particles(count=8, seed=42):
-    """ボケパーティクルの基本パラメータを事前生成"""
-    rng = random.Random(seed)
-    particles = []
-    for _ in range(count):
-        particles.append({
-            "base_x": rng.uniform(0, WIDTH),
-            "base_y": rng.uniform(0, HEIGHT),
-            "radius": rng.uniform(10, 40),
-            "speed_x": rng.uniform(-0.3, 0.3),
-            "speed_y": rng.uniform(-0.6, -0.15),
-            "phase": rng.uniform(0, math.pi * 2),
-        })
-    return particles
-
-
-# パーティクル事前生成
-_BOKEH_PARTICLES = generate_bokeh_particles()
-
-
-def generate_bokeh_overlay(w, h, time_offset=0.0):
-    """ボケパーティクルオーバーレイ（浮遊する光の粒子）"""
-    overlay = Image.new("RGBA", (w, h), (0, 0, 0, 0))
-    draw = ImageDraw.Draw(overlay)
-
-    for p in _BOKEH_PARTICLES:
-        x = p["base_x"] + p["speed_x"] * time_offset * 60 + math.sin(p["phase"] + time_offset * 1.5) * 15
-        y = p["base_y"] + p["speed_y"] * time_offset * 60
-        x = x % w
-        y = y % h
-
-        brightness = 0.3 + 0.7 * (0.5 + 0.5 * math.sin(p["phase"] + time_offset * 2.5))
-        base_alpha = int(28 * brightness)
-        radius = p["radius"]
-
-        for r_step in range(int(radius), 0, -3):
-            ratio = r_step / radius
-            step_alpha = int(base_alpha * (1 - ratio * ratio))
-            if step_alpha > 0:
-                draw.ellipse([x - r_step, y - r_step, x + r_step, y + r_step],
-                             fill=(220, 200, 160, step_alpha))
-
-    return overlay
-
-
-def apply_cinematic_pipeline(frame, frame_idx, has_image=True):
-    """シネマティック映像パイプライン（グレイン + カラグレ + ビネット + ボケ）"""
-    if has_image:
-        frame = apply_color_grade(frame)
-        frame = apply_vignette(frame)
-
-    frame = apply_film_grain(frame, intensity=10, seed=frame_idx)
-
-    bokeh = generate_bokeh_overlay(WIDTH, HEIGHT, time_offset=frame_idx / FPS)
-    frame_rgba = frame.convert("RGBA")
-    frame = Image.alpha_composite(frame_rgba, bokeh).convert("RGB")
-
-    return frame
-
-
-# ── Ken Burns ──────────────────────────────────
-
-def apply_ken_burns(img, effect, progress, canvas_w, canvas_h):
-    """Ken Burnsエフェクトを適用"""
-    if img is None:
-        return Image.new("RGB", (canvas_w, canvas_h), BG_COLOR)
-
-    pad = 1.25
-    base = fit_cover(img, int(canvas_w * pad), int(canvas_h * pad))
-    bw, bh = base.size
-    t = ease_in_out(progress)
-
-    if effect == "zoom_in":
-        scale = 1.0 + 0.12 * t
-        cx, cy = bw / 2, bh / 2
-    elif effect == "zoom_out":
-        scale = 1.12 - 0.12 * t
-        cx, cy = bw / 2, bh / 2
-    elif effect == "pan_right":
-        scale = 1.08
-        cx = bw / 2 + (bw * 0.04) * (2 * t - 1)
-        cy = bh / 2
-    elif effect == "pan_left":
-        scale = 1.08
-        cx = bw / 2 - (bw * 0.04) * (2 * t - 1)
-        cy = bh / 2
-    elif effect == "zoom_tilt":
-        scale = 1.0 + 0.08 * t
-        cx = bw / 2 + math.sin(t * 0.5) * 5
-        cy = bh / 2
-    elif effect == "none":
-        return Image.new("RGB", (canvas_w, canvas_h), BG_COLOR)
-    else:
-        scale = 1.0
-        cx, cy = bw / 2, bh / 2
-
-    crop_w = canvas_w / scale
-    crop_h = canvas_h / scale
-    left = max(0, cx - crop_w / 2)
-    top = max(0, cy - crop_h / 2)
-    right = min(bw, left + crop_w)
-    bottom = min(bh, top + crop_h)
-
-    if right - left < crop_w:
-        left = max(0, right - crop_w)
-    if bottom - top < crop_h:
-        top = max(0, bottom - crop_h)
-
-    cropped = base.crop((int(left), int(top), int(right), int(bottom)))
-    return cropped.resize((canvas_w, canvas_h), Image.LANCZOS)
-
-
-# ── グラデーション & トランジション ──────────────────
-
-def draw_gradient_overlay(frame):
-    """上下に暗いグラデーションオーバーレイ"""
-    overlay = Image.new("RGBA", frame.size, (0, 0, 0, 0))
-    draw = ImageDraw.Draw(overlay)
-
-    # 上部グラデ
-    for y in range(int(HEIGHT * 0.15)):
-        alpha = int(60 * (1 - y / (HEIGHT * 0.15)))
-        draw.rectangle([(0, y), (WIDTH, y + 1)], fill=(0, 0, 0, alpha))
-
-    # 下部グラデ
-    start_y = int(HEIGHT * 0.55)
-    for y in range(start_y, HEIGHT):
-        progress = (y - start_y) / (HEIGHT - start_y)
-        alpha = int(200 * progress)
-        draw.rectangle([(0, y), (WIDTH, y + 1)], fill=(0, 0, 0, alpha))
-
-    frame_rgba = frame.convert("RGBA")
-    return Image.alpha_composite(frame_rgba, overlay).convert("RGB")
-
-
-def make_blur_flash_transition(prev_frame, next_frame, n_frames):
-    """ブラーフラッシュトランジション（ブラー→白→次のシーン）"""
-    frames = []
-    mid = n_frames // 2
-
-    for i in range(n_frames):
-        if i <= mid:
-            # 前半: 前のシーンがブラーして白に飛ぶ
-            t = i / max(1, mid)
-            blur_radius = int(t * 12)
-            blurred = prev_frame.filter(ImageFilter.GaussianBlur(radius=max(1, blur_radius)))
-            brightness = int(255 * ease_in_out(t) * 0.85)
-            white = Image.new("RGB", (WIDTH, HEIGHT), (brightness, brightness, brightness))
-            frame = Image.blend(blurred, white, ease_in_out(t) * 0.8)
-        else:
-            # 後半: 白から次のシーンに溶ける
-            t = (i - mid) / max(1, n_frames - mid - 1)
-            brightness = int(255 * (1 - ease_in_out(t)) * 0.7)
-            white = Image.new("RGB", (WIDTH, HEIGHT), (brightness, brightness, brightness))
-            frame = Image.blend(white, next_frame, ease_in_out(t))
-
-        frames.append(frame)
-    return frames
-
-
-# ── テキスト描画 ──────────────────────────────────
+# ── フォント ──────────────────────────────────────
 
 def get_font(size, style="title"):
-    """フォント取得"""
     mincho_paths = [
         "/System/Library/Fonts/ヒラギノ明朝 ProN.ttc",
         "/System/Library/Fonts/ヒラギノ明朝 ProN W6.otf",
@@ -489,19 +168,16 @@ def get_font(size, style="title"):
         "/usr/share/fonts/truetype/noto/NotoSansCJK-Regular.ttc",
         "/usr/share/fonts/truetype/wqy/wqy-zenhei.ttc",
     ]
-
-    if style in ("title", "accent"):
+    if style in ("title", "accent", "number"):
         search_order = mincho_paths + gothic_paths
     else:
         search_order = gothic_paths + mincho_paths
-
     for fp in search_order:
         if os.path.exists(fp):
             try:
                 return ImageFont.truetype(fp, size)
             except Exception:
                 continue
-
     fallback = ["/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"]
     for fp in fallback:
         if os.path.exists(fp):
@@ -512,225 +188,470 @@ def get_font(size, style="title"):
     return ImageFont.load_default()
 
 
-def draw_char_reveal(draw, text, x, y, font, color, alpha, progress, spacing=0):
-    """1文字ずつリビールアニメーション"""
-    chars = list(text)
-    n = len(chars)
-    if n == 0:
-        return
+# ── シネマティック映像エフェクト ──────────────────────
 
-    current_x = x
-    for ci, ch in enumerate(chars):
-        # 各文字の出現タイミング（均等に分散）
-        char_start = ci / n * 0.7  # 全体の70%の時間で全文字開始
-        char_end = char_start + 0.3
-        if progress < char_start:
-            char_alpha = 0
-            char_offset_y = 12
-        elif progress >= char_end:
-            char_alpha = alpha
-            char_offset_y = 0
-        else:
-            t = (progress - char_start) / (char_end - char_start)
-            t = ease_out_cubic(t)
-            char_alpha = int(alpha * t)
-            char_offset_y = int(12 * (1 - t))
-
-        if char_alpha > 0:
-            fill = (*color, char_alpha)
-            shadow_a = int(min(160, char_alpha * 0.7))
-
-            # 影
-            for dx in range(-2, 3):
-                for dy in range(-2, 3):
-                    if abs(dx) + abs(dy) > 3:
-                        continue
-                    if dx == 0 and dy == 0:
-                        continue
-                    draw.text((current_x + dx, y + char_offset_y + dy), ch,
-                              font=font, fill=(0, 0, 0, shadow_a))
-
-            draw.text((current_x, y + char_offset_y), ch, font=font, fill=fill)
-
-        # 文字幅を取得して次の位置へ
-        bbox = draw.textbbox((0, 0), ch, font=font)
-        char_w = bbox[2] - bbox[0]
-        current_x += char_w + spacing
+_COLOR_LUT_R = None
+_COLOR_LUT_G = None
+_COLOR_LUT_B = None
+_VIGNETTE_MASK = None
 
 
-def draw_gold_line(draw, y, progress, delay=0.0):
-    """ゴールドライン装飾アニメーション（中央から左右に伸びる）"""
-    if progress <= delay:
-        return
-    t = min(1.0, (progress - delay) / 0.5)
-    t = ease_out_cubic(t)
-
-    max_half_width = 80
-    half_w = int(max_half_width * t)
-    cx = WIDTH // 2
-    line_y = int(HEIGHT * y)
-    alpha = int(180 * min(1.0, t * 1.5))
-
-    if half_w > 0 and alpha > 0:
-        # メインライン
-        draw.rectangle([(cx - half_w, line_y), (cx + half_w, line_y + 1)],
-                        fill=(*GOLD, alpha))
-        # 端の装飾ドット
-        if t > 0.5:
-            dot_alpha = int(alpha * min(1.0, (t - 0.5) * 4))
-            for dx in [-half_w - 4, half_w + 4]:
-                draw.ellipse([(cx + dx - 1, line_y - 1), (cx + dx + 1, line_y + 1)],
-                             fill=(*GOLD_LIGHT, dot_alpha))
+def _build_color_luts():
+    global _COLOR_LUT_R, _COLOR_LUT_G, _COLOR_LUT_B
+    def make_lut(shadow_shift, highlight_shift, gamma):
+        lut = []
+        for i in range(256):
+            v = i / 255.0
+            v = pow(v, gamma)
+            if v < 0.5:
+                v += shadow_shift * (0.5 - v) * 0.12
+            else:
+                v += highlight_shift * (v - 0.5) * 0.06
+            lut.append(max(0, min(255, int(v * 255))))
+        return lut
+    _COLOR_LUT_R = make_lut(shadow_shift=0.4, highlight_shift=0.05, gamma=0.98)
+    _COLOR_LUT_G = make_lut(shadow_shift=0.15, highlight_shift=0.0, gamma=1.0)
+    _COLOR_LUT_B = make_lut(shadow_shift=-0.2, highlight_shift=-0.05, gamma=1.02)
 
 
-def draw_text_overlay(frame, texts, text_progress, scene_progress=0.0, gold_line_config=None):
-    """テキストオーバーレイ描画（リビール・バウンス・スライド対応）"""
+def _build_vignette_mask(w, h):
+    global _VIGNETTE_MASK
+    mask = Image.new("L", (w, h))
+    pixels = mask.load()
+    cx, cy = w / 2.0, h / 2.0
+    max_dist = math.sqrt(cx * cx + cy * cy)
+    for y in range(h):
+        for x in range(w):
+            dist = math.sqrt((x - cx) ** 2 + (y - cy) ** 2)
+            ratio = dist / max_dist
+            if ratio < 0.35:
+                v = 0
+            else:
+                falloff = (ratio - 0.35) / 0.65
+                v = int(255 * falloff * falloff * 0.45)
+            pixels[x, y] = min(255, v)
+    _VIGNETTE_MASK = mask
+
+
+def apply_film_grain(frame, intensity=8, seed=None):
+    rng = random.Random(seed)
+    sw, sh = 135, 240
+    grain_data = bytes(max(0, min(255, int(rng.gauss(128, intensity)))) for _ in range(sw * sh))
+    grain_small = Image.frombytes("L", (sw, sh), grain_data)
+    grain = grain_small.resize(frame.size, Image.BILINEAR)
+    grain_rgb = Image.merge("RGB", [grain, grain, grain])
+    return Image.blend(frame, grain_rgb, 0.04)
+
+
+def apply_color_grade(frame):
+    if _COLOR_LUT_R is None:
+        _build_color_luts()
+    r, g, b = frame.split()
+    r = r.point(_COLOR_LUT_R)
+    g = g.point(_COLOR_LUT_G)
+    b = b.point(_COLOR_LUT_B)
+    graded = Image.merge("RGB", [r, g, b])
+    gray = graded.convert("L").convert("RGB")
+    return Image.blend(graded, gray, 0.10)
+
+
+def apply_vignette(frame):
+    w, h = frame.size
+    if _VIGNETTE_MASK is None or _VIGNETTE_MASK.size != (w, h):
+        _build_vignette_mask(w, h)
+    black = Image.new("RGB", (w, h), (0, 0, 0))
+    return Image.composite(black, frame, _VIGNETTE_MASK)
+
+
+def apply_cinematic(frame, frame_idx):
+    frame = apply_color_grade(frame)
+    frame = apply_vignette(frame)
+    frame = apply_film_grain(frame, intensity=8, seed=frame_idx)
+    return frame
+
+
+# ── Ken Burns（控えめ）──────────────────────────────
+
+def apply_ken_burns(img, progress, effect="zoom_in"):
+    if img is None:
+        return Image.new("RGB", (WIDTH, HEIGHT), BG_COLOR)
+    pad = 1.18
+    cw = WIDTH - FRAME_MARGIN * 2
+    ch = PHOTO_AREA_BOTTOM - PHOTO_AREA_TOP
+    base = fit_cover(img, int(cw * pad), int(ch * pad))
+    bw, bh = base.size
+    t = ease_in_out(progress)
+
+    if effect == "zoom_in":
+        scale = 1.0 + 0.06 * t
+        cx, cy = bw / 2, bh / 2
+    elif effect == "zoom_out":
+        scale = 1.06 - 0.06 * t
+        cx, cy = bw / 2, bh / 2
+    elif effect == "pan_right":
+        scale = 1.04
+        cx = bw / 2 + (bw * 0.025) * (2 * t - 1)
+        cy = bh / 2
+    elif effect == "pan_left":
+        scale = 1.04
+        cx = bw / 2 - (bw * 0.025) * (2 * t - 1)
+        cy = bh / 2
+    else:
+        scale = 1.0
+        cx, cy = bw / 2, bh / 2
+
+    crop_w = cw / scale
+    crop_h = ch / scale
+    left = max(0, cx - crop_w / 2)
+    top = max(0, cy - crop_h / 2)
+    right = min(bw, left + crop_w)
+    bottom = min(bh, top + crop_h)
+    if right - left < crop_w:
+        left = max(0, right - crop_w)
+    if bottom - top < crop_h:
+        top = max(0, bottom - crop_h)
+
+    cropped = base.crop((int(left), int(top), int(right), int(bottom)))
+    return cropped.resize((cw, ch), Image.LANCZOS)
+
+
+# ── ギャラリーフレーム描画 ────────────────────────────
+
+def draw_gallery_frame(bg, photo, border_alpha=180):
+    """写真をギャラリーフレーム（金線ボーダー付き）で配置"""
+    frame = bg.copy()
+    draw = ImageDraw.Draw(frame)
+
+    x1 = FRAME_MARGIN
+    y1 = PHOTO_AREA_TOP
+    x2 = WIDTH - FRAME_MARGIN
+    y2 = PHOTO_AREA_BOTTOM
+
+    # 写真を配置
+    frame.paste(photo, (x1, y1))
+
+    # 金線ボーダー
     frame_rgba = frame.convert("RGBA")
-    txt_layer = Image.new("RGBA", frame_rgba.size, (0, 0, 0, 0))
-    draw = ImageDraw.Draw(txt_layer)
+    border_layer = Image.new("RGBA", (WIDTH, HEIGHT), (0, 0, 0, 0))
+    bd = ImageDraw.Draw(border_layer)
+    border_color = (*GOLD_DIM, border_alpha)
+
+    # 外枠
+    for offset in range(FRAME_BORDER):
+        bd.rectangle(
+            [(x1 - 3 - offset, y1 - 3 - offset), (x2 + 3 + offset, y2 + 3 + offset)],
+            outline=border_color
+        )
+
+    result = Image.alpha_composite(frame_rgba, border_layer).convert("RGB")
+    return result
+
+
+def draw_text_shadow(draw, pos, text, font, fill, shadow_color=(0, 0, 0), shadow_range=2):
+    """テキストを影付きで描画"""
+    x, y = pos
+    if isinstance(fill, tuple) and len(fill) == 4:
+        sa = min(120, fill[3])
+    else:
+        sa = 120
+    for dx in range(-shadow_range, shadow_range + 1):
+        for dy in range(-shadow_range, shadow_range + 1):
+            if dx == 0 and dy == 0:
+                continue
+            if abs(dx) + abs(dy) > shadow_range + 1:
+                continue
+            draw.text((x + dx, y + dy), text, font=font, fill=(*shadow_color, sa))
+    draw.text((x, y), text, font=font, fill=fill)
+
+
+# ── シーン描画関数 ──────────────────────────────────
+
+def render_opening(frame_idx, n_frames, images):
+    """オープニング: 店名 + ミシュラン + 「懐石 全九品」"""
+    t = frame_idx / max(1, n_frames - 1)
+    frame = Image.new("RGB", (WIDTH, HEIGHT), BG_COLOR)
+
+    # 外観写真（モノクロ → カラー）
+    exterior = images["exterior"]
+    photo = apply_ken_burns(exterior, t, "zoom_in")
+
+    # モノクロ→カラーのリビール
+    mono = ImageEnhance.Color(photo).enhance(0.0)
+    color_t = ease_out_quart(min(1.0, t * 1.5))  # 前半2/3でカラーに
+    photo = Image.blend(mono, photo, color_t)
+
+    frame = draw_gallery_frame(frame, photo, border_alpha=int(180 * min(1.0, t * 3)))
+
+    # テキストオーバーレイ
+    frame_rgba = frame.convert("RGBA")
+    txt = Image.new("RGBA", (WIDTH, HEIGHT), (0, 0, 0, 0))
+    draw = ImageDraw.Draw(txt)
+
+    time_s = frame_idx / FPS
+
+    # ミシュラン（0.3秒後にフェード）
+    if time_s > 0.3:
+        tp = min(1.0, (time_s - 0.3) / 0.8)
+        alpha = int(200 * tp)
+        font = get_font(14, "body")
+        text = "MICHELIN SELECTED"
+        bbox = draw.textbbox((0, 0), text, font=font)
+        tw = bbox[2] - bbox[0]
+        draw_text_shadow(draw, ((WIDTH - tw) // 2, 75), text, font,
+                         (*GOLD_DIM, alpha), shadow_range=1)
+
+    # 店名「大嵓埜」（0.6秒後にタイプライター）
+    if time_s > 0.6:
+        tp = min(1.0, (time_s - 0.6) / 1.0)
+        store_name = "大 嵓 埜"
+        visible_chars = max(0, int(len(store_name) * ease_out_cubic(tp)))
+        visible_text = store_name[:visible_chars]
+        if visible_text:
+            font = get_font(52, "title")
+            bbox = draw.textbbox((0, 0), store_name, font=font)
+            full_tw = bbox[2] - bbox[0]
+            x = (WIDTH - full_tw) // 2
+            alpha = int(255 * min(1.0, tp * 2))
+            draw_text_shadow(draw, (x, PHOTO_AREA_BOTTOM + 30), visible_text,
+                             font, (*WHITE, alpha))
+
+    # 「懐石 全九品」（1.2秒後）
+    if time_s > 1.2:
+        tp = min(1.0, (time_s - 1.2) / 0.8)
+        alpha = int(180 * tp)
+        font = get_font(16, "body")
+        text = "懐石   全九品"
+        bbox = draw.textbbox((0, 0), text, font=font)
+        tw = bbox[2] - bbox[0]
+        draw_text_shadow(draw, ((WIDTH - tw) // 2, PHOTO_AREA_BOTTOM + 100),
+                         text, font, (*GRAY, alpha), shadow_range=1)
+
+    # 「北新地」（1.5秒後）
+    if time_s > 1.5:
+        tp = min(1.0, (time_s - 1.5) / 0.6)
+        alpha = int(140 * tp)
+        font = get_font(13, "body")
+        text = "北新地"
+        bbox = draw.textbbox((0, 0), text, font=font)
+        tw = bbox[2] - bbox[0]
+        draw_text_shadow(draw, ((WIDTH - tw) // 2, PHOTO_AREA_BOTTOM + 130),
+                         text, font, (*DARK_GRAY, alpha), shadow_range=1)
+
+    # 下部に薄いゴールドライン
+    if time_s > 1.0:
+        tp = min(1.0, (time_s - 1.0) / 0.6)
+        line_half_w = int(60 * ease_out_cubic(tp))
+        line_alpha = int(100 * tp)
+        cx = WIDTH // 2
+        ly = PHOTO_AREA_BOTTOM + 90
+        if line_half_w > 0:
+            draw.rectangle([(cx - line_half_w, ly), (cx + line_half_w, ly)],
+                           fill=(*GOLD_DIM, line_alpha))
+
+    frame = Image.alpha_composite(frame_rgba, txt).convert("RGB")
+    return frame
+
+
+def render_course(frame_idx, n_frames, course_data, course_img, effect):
+    """コース一品: ギャラリーフレーム + 漢数字 + 料理名"""
+    t = frame_idx / max(1, n_frames - 1)
+    time_s = frame_idx / FPS
+    frame = Image.new("RGB", (WIDTH, HEIGHT), BG_COLOR)
+
+    # 写真
+    photo = apply_ken_burns(course_img, t, effect)
+
+    # ギャラリーフレーム
+    frame = draw_gallery_frame(frame, photo, border_alpha=160)
+
+    # テキスト
+    frame_rgba = frame.convert("RGBA")
+    txt = Image.new("RGBA", (WIDTH, HEIGHT), (0, 0, 0, 0))
+    draw = ImageDraw.Draw(txt)
+
+    # 漢数字（左上、大きく）
+    num_tp = min(1.0, time_s / 0.4)
+    num_alpha = int(100 * ease_out_cubic(num_tp))
+    num_font = get_font(72, "number")
+    draw_text_shadow(draw, (FRAME_MARGIN + 8, PHOTO_AREA_TOP + 8),
+                     course_data["number"], num_font,
+                     (*GOLD_DIM, num_alpha), shadow_range=2)
+
+    # 料理名（写真下、中央）
+    name_delay = 0.2
+    if time_s > name_delay:
+        tp = min(1.0, (time_s - name_delay) / 0.5)
+        alpha = int(240 * ease_out_cubic(tp))
+        y_offset = int(8 * (1 - ease_out_cubic(tp)))
+        font = get_font(36, "title")
+        text = course_data["name"]
+        bbox = draw.textbbox((0, 0), text, font=font)
+        tw = bbox[2] - bbox[0]
+        draw_text_shadow(draw, ((WIDTH - tw) // 2, PHOTO_AREA_BOTTOM + 35 + y_offset),
+                         text, font, (*WHITE, alpha))
+
+    # ローマ字サブタイトル
+    sub_delay = 0.4
+    if time_s > sub_delay:
+        tp = min(1.0, (time_s - sub_delay) / 0.5)
+        alpha = int(100 * ease_out_cubic(tp))
+        font = get_font(12, "body")
+        text = course_data["sub"]
+        bbox = draw.textbbox((0, 0), text, font=font)
+        tw = bbox[2] - bbox[0]
+        draw_text_shadow(draw, ((WIDTH - tw) // 2, PHOTO_AREA_BOTTOM + 80),
+                         text, font, (*DARK_GRAY, alpha), shadow_range=1)
+
+    frame = Image.alpha_composite(frame_rgba, txt).convert("RGB")
+    return frame
+
+
+def render_text_card(frame_idx, n_frames):
+    """テキストカード: 「一品一会」の余韻"""
+    t = frame_idx / max(1, n_frames - 1)
+    time_s = frame_idx / FPS
+    frame = Image.new("RGB", (WIDTH, HEIGHT), BG_COLOR)
+
+    frame_rgba = frame.convert("RGBA")
+    txt = Image.new("RGBA", (WIDTH, HEIGHT), (0, 0, 0, 0))
+    draw = ImageDraw.Draw(txt)
+
+    # 金線（上下）
+    line_tp = min(1.0, time_s / 0.5)
+    line_hw = int(40 * ease_out_cubic(line_tp))
+    line_alpha = int(120 * line_tp)
+    cx = WIDTH // 2
+    if line_hw > 0:
+        draw.rectangle([(cx - line_hw, 400), (cx + line_hw, 400)],
+                       fill=(*GOLD_DIM, line_alpha))
+        draw.rectangle([(cx - line_hw, 560), (cx + line_hw, 560)],
+                       fill=(*GOLD_DIM, line_alpha))
+
+    # 「一品一会」
+    if time_s > 0.2:
+        tp = min(1.0, (time_s - 0.2) / 0.8)
+        text = "一 品 一 会"
+        visible_chars = max(0, int(len(text) * ease_out_cubic(tp)))
+        visible = text[:visible_chars]
+        if visible:
+            alpha = int(220 * min(1.0, tp * 1.5))
+            font = get_font(44, "title")
+            bbox = draw.textbbox((0, 0), text, font=font)
+            full_tw = bbox[2] - bbox[0]
+            x = (WIDTH - full_tw) // 2
+            draw_text_shadow(draw, (x, 440), visible, font, (*WHITE, alpha))
+
+    # 「季節を味わう、北新地の夜」
+    if time_s > 0.8:
+        tp = min(1.0, (time_s - 0.8) / 0.6)
+        alpha = int(140 * tp)
+        font = get_font(15, "body")
+        text = "季節を味わう、北新地の夜"
+        bbox = draw.textbbox((0, 0), text, font=font)
+        tw = bbox[2] - bbox[0]
+        draw_text_shadow(draw, ((WIDTH - tw) // 2, 510), text, font,
+                         (*GRAY, alpha), shadow_range=1)
+
+    frame = Image.alpha_composite(frame_rgba, txt).convert("RGB")
+    return frame
+
+
+def render_cta(frame_idx, n_frames, exterior_img):
+    """CTA: 控えめな予約誘導"""
+    t = frame_idx / max(1, n_frames - 1)
+    time_s = frame_idx / FPS
+    frame = Image.new("RGB", (WIDTH, HEIGHT), BG_COLOR)
+
+    # 外観写真（暗めに）
+    photo = apply_ken_burns(exterior_img, t, "zoom_in")
+    darkener = ImageEnhance.Brightness(photo).enhance(0.6)
+    frame = draw_gallery_frame(frame, darkener, border_alpha=100)
+
+    frame_rgba = frame.convert("RGBA")
+    txt = Image.new("RGBA", (WIDTH, HEIGHT), (0, 0, 0, 0))
+    draw = ImageDraw.Draw(txt)
+
+    # 店名
+    if time_s > 0.2:
+        tp = min(1.0, (time_s - 0.2) / 0.6)
+        alpha = int(240 * tp)
+        font = get_font(42, "title")
+        text = "大 嵓 埜"
+        bbox = draw.textbbox((0, 0), text, font=font)
+        tw = bbox[2] - bbox[0]
+        draw_text_shadow(draw, ((WIDTH - tw) // 2, PHOTO_AREA_BOTTOM + 25), text,
+                         font, (*WHITE, alpha))
 
     # ゴールドライン
-    if gold_line_config:
-        draw_gold_line(draw, gold_line_config["y"], scene_progress,
-                       gold_line_config.get("delay", 0.0))
+    if time_s > 0.5:
+        tp = min(1.0, (time_s - 0.5) / 0.4)
+        hw = int(50 * ease_out_cubic(tp))
+        la = int(130 * tp)
+        cx = WIDTH // 2
+        ly = PHOTO_AREA_BOTTOM + 80
+        if hw > 0:
+            draw.rectangle([(cx - hw, ly), (cx + hw, ly)], fill=(*GOLD_DIM, la))
 
-    for i, t in enumerate(texts):
-        if i >= len(text_progress) or text_progress[i] <= 0:
-            continue
+    # 電話番号
+    if time_s > 0.8:
+        tp = min(1.0, (time_s - 0.8) / 0.5)
+        alpha = int(220 * tp)
+        font = get_font(32, "accent")
+        text = "06-6341-3535"
+        bbox = draw.textbbox((0, 0), text, font=font)
+        tw = bbox[2] - bbox[0]
+        draw_text_shadow(draw, ((WIDTH - tw) // 2, PHOTO_AREA_BOTTOM + 100), text,
+                         font, (*GOLD, alpha))
 
-        tp = min(1.0, text_progress[i])
-        anim = t.get("anim", "fade")
-        base_size = t["size"]
-        font_style = t.get("font", "title")
-        text_str = t["text"]
-        color = t["color"]
-        align = t.get("align", "center")
-        spacing = t.get("spacing", 0)
+    # 住所
+    if time_s > 1.2:
+        tp = min(1.0, (time_s - 1.2) / 0.5)
+        alpha = int(120 * tp)
+        font = get_font(12, "body")
+        text = "北新地 FOODEAR ビル 3F"
+        bbox = draw.textbbox((0, 0), text, font=font)
+        tw = bbox[2] - bbox[0]
+        draw_text_shadow(draw, ((WIDTH - tw) // 2, PHOTO_AREA_BOTTOM + 148), text,
+                         font, (*DARK_GRAY, alpha), shadow_range=1)
 
-        if anim == "char_reveal":
-            # 1文字ずつリビール
-            font = get_font(base_size, font_style)
-            alpha = int(255 * min(1.0, tp * 2.0))
-            y_pos = int(HEIGHT * t["y"])
+    # 「完全予約制」
+    if time_s > 1.5:
+        tp = min(1.0, (time_s - 1.5) / 0.5)
+        alpha = int(160 * tp)
+        font = get_font(16, "body")
+        text = "完 全 予 約 制"
+        bbox = draw.textbbox((0, 0), text, font=font)
+        tw = bbox[2] - bbox[0]
+        draw_text_shadow(draw, ((WIDTH - tw) // 2, PHOTO_AREA_BOTTOM + 178), text,
+                         font, (*GOLD_LIGHT, alpha), shadow_range=1)
 
-            # テキスト全体幅を計算して中央揃え
-            bbox = draw.textbbox((0, 0), text_str, font=font)
-            tw = bbox[2] - bbox[0]
-            if align == "center":
-                x_pos = (WIDTH - tw - spacing * (len(text_str) - 1)) // 2
-            else:
-                x_pos = 36
+    # 「プロフィールから予約」
+    if time_s > 2.0:
+        tp = min(1.0, (time_s - 2.0) / 0.5)
+        alpha = int(140 * tp)
+        font = get_font(14, "body")
+        text = "プロフィールのリンクからご予約"
+        bbox = draw.textbbox((0, 0), text, font=font)
+        tw = bbox[2] - bbox[0]
+        y_off = int(6 * (1 - ease_out_cubic(tp)))
+        draw_text_shadow(draw, ((WIDTH - tw) // 2, PHOTO_AREA_BOTTOM + 210 + y_off),
+                         text, font, (*GRAY, alpha), shadow_range=1)
 
-            draw_char_reveal(draw, text_str, x_pos, y_pos, font, color,
-                             alpha, tp, spacing)
+    # フェードアウト（最後0.8秒）
+    frame = Image.alpha_composite(frame_rgba, txt).convert("RGB")
 
-        elif anim == "bounce":
-            anim_t = ease_out_back(min(1.0, tp * 1.2))
-            text_scale = 1.0 + 0.20 * (1 - anim_t)
-            alpha = int(255 * min(1.0, tp * 2.5))
-            y_offset = int(-6 * (1 - anim_t))
+    fade_start = 0.78
+    if t > fade_start:
+        fade_t = (t - fade_start) / (1.0 - fade_start)
+        black = Image.new("RGB", (WIDTH, HEIGHT), BG_COLOR)
+        frame = Image.blend(frame, black, ease_in_out(fade_t))
 
-            actual_size = max(8, int(base_size * text_scale))
-            font = get_font(actual_size, font_style)
-            y_pos = int(HEIGHT * t["y"]) + y_offset
-            bbox = draw.textbbox((0, 0), text_str, font=font)
-            tw = bbox[2] - bbox[0]
-            x_pos = (WIDTH - tw) // 2 if align == "center" else 36
-
-            fill_a = (*color, alpha)
-            shadow_a = int(160 * min(1.0, tp * 2.0))
-            for dx in range(-2, 3):
-                for dy in range(-2, 3):
-                    if abs(dx) + abs(dy) > 3 or (dx == 0 and dy == 0):
-                        continue
-                    draw.text((x_pos + dx, y_pos + dy), text_str, font=font,
-                              fill=(0, 0, 0, shadow_a))
-            draw.text((x_pos, y_pos), text_str, font=font, fill=fill_a)
-
-        elif anim == "slide_up":
-            anim_t = ease_in_out(tp)
-            alpha = int(255 * min(1.0, tp * 2.0))
-            y_offset = int(25 * (1 - anim_t))
-
-            font = get_font(base_size, font_style)
-            y_pos = int(HEIGHT * t["y"]) + y_offset
-            bbox = draw.textbbox((0, 0), text_str, font=font)
-            tw = bbox[2] - bbox[0]
-            x_pos = (WIDTH - tw) // 2 if align == "center" else 36
-
-            fill_a = (*color, alpha)
-            shadow_a = int(160 * min(1.0, tp * 2.0))
-            for dx in range(-2, 3):
-                for dy in range(-2, 3):
-                    if abs(dx) + abs(dy) > 3 or (dx == 0 and dy == 0):
-                        continue
-                    draw.text((x_pos + dx, y_pos + dy), text_str, font=font,
-                              fill=(0, 0, 0, shadow_a))
-            draw.text((x_pos, y_pos), text_str, font=font, fill=fill_a)
-
-        else:
-            # 通常フェード
-            anim_t = ease_in_out(tp)
-            alpha = int(255 * tp)
-            y_offset = int(6 * (1 - anim_t))
-
-            font = get_font(base_size, font_style)
-            y_pos = int(HEIGHT * t["y"]) + y_offset
-            bbox = draw.textbbox((0, 0), text_str, font=font)
-            tw = bbox[2] - bbox[0]
-            x_pos = (WIDTH - tw) // 2 if align == "center" else 36
-
-            fill_a = (*color, alpha)
-            shadow_a = int(160 * min(1.0, tp * 2.0))
-            for dx in range(-2, 3):
-                for dy in range(-2, 3):
-                    if abs(dx) + abs(dy) > 3 or (dx == 0 and dy == 0):
-                        continue
-                    draw.text((x_pos + dx, y_pos + dy), text_str, font=font,
-                              fill=(0, 0, 0, shadow_a))
-            draw.text((x_pos, y_pos), text_str, font=font, fill=fill_a)
-
-    return Image.alpha_composite(frame_rgba, txt_layer).convert("RGB")
-
-
-def draw_progress_bar(frame, scene_idx, total_scenes, scene_progress):
-    """上部のInstagram風プログレスバー"""
-    frame_rgba = frame.convert("RGBA")
-    draw = ImageDraw.Draw(frame_rgba)
-
-    bar_y = 20
-    bar_h = 2
-    margin = 12
-    gap = 4
-    total_w = WIDTH - margin * 2
-    seg_w = (total_w - gap * (total_scenes - 1)) / total_scenes
-
-    for i in range(total_scenes):
-        x = margin + i * (seg_w + gap)
-        draw.rectangle([(x, bar_y), (x + seg_w, bar_y + bar_h)], fill=(255, 255, 255, 40))
-        if i < scene_idx:
-            fill_w = seg_w
-        elif i == scene_idx:
-            fill_w = seg_w * scene_progress
-        else:
-            fill_w = 0
-
-        if fill_w > 0:
-            draw.rectangle([(x, bar_y), (x + fill_w, bar_y + bar_h)],
-                           fill=(255, 255, 255, 180))
-
-    return frame_rgba.convert("RGB")
-
-
-def crossfade_frames(frame_a, frame_b, t):
-    """2フレーム間のクロスフェード"""
-    return Image.blend(frame_a, frame_b, t)
+    return frame
 
 
 # ── BGM生成（フォールバック）──────────────────────────
 
 def generate_bgm_wav(path, duration_sec):
-    """合成BGMフォールバック"""
     sr = 44100
     total_samples = int(sr * duration_sec)
     base_freqs = [293.66, 349.23, 392.00, 440.00, 523.25, 587.33, 698.46]
@@ -753,19 +674,19 @@ def generate_bgm_wav(path, duration_sec):
         samples = []
         for i in range(n):
             t = i / sr
-            fade_in = min(1.0, t / 2.0)
-            fade_out = min(1.0, (dur - t) / 2.0)
-            env = fade_in * fade_out * volume
+            fi = min(1.0, t / 2.0)
+            fo = min(1.0, (dur - t) / 2.0)
+            env = fi * fo * volume
             val = (math.sin(2 * math.pi * freq * t) * 0.5 +
                    math.sin(2 * math.pi * freq * 1.002 * t) * 0.5)
             samples.append(val * env)
         return samples
 
     buf = [0.0] * total_samples
-    pad_d = pad_tone(146.83, duration_sec, 0.06)
-    pad_a = pad_tone(220.00, duration_sec, 0.04)
-    for i in range(min(len(pad_d), total_samples)):
-        buf[i] += pad_d[i] + pad_a[i]
+    pd = pad_tone(146.83, duration_sec, 0.06)
+    pa = pad_tone(220.00, duration_sec, 0.04)
+    for i in range(min(len(pd), total_samples)):
+        buf[i] += pd[i] + pa[i]
 
     time_pos = 0.5
     while time_pos < duration_sec - 2.0:
@@ -778,134 +699,106 @@ def generate_bgm_wav(path, duration_sec):
             buf[start_idx + i] += note[i]
         time_pos += rng.uniform(1.0, 2.5)
 
-    fade_in_samples = int(sr * 1.5)
-    fade_out_samples = int(sr * 2.5)
-    for i in range(min(fade_in_samples, total_samples)):
-        buf[i] *= i / fade_in_samples
-    for i in range(min(fade_out_samples, total_samples)):
-        buf[total_samples - 1 - i] *= i / fade_out_samples
+    fade_in_s = int(sr * 1.5)
+    fade_out_s = int(sr * 2.5)
+    for i in range(min(fade_in_s, total_samples)):
+        buf[i] *= i / fade_in_s
+    for i in range(min(fade_out_s, total_samples)):
+        buf[total_samples - 1 - i] *= i / fade_out_s
 
     peak = max(abs(s) for s in buf) or 1.0
-    scale = 0.85 / peak
-    raw = b"".join(struct.pack("<h", max(-32767, min(32767, int(s * scale * 32767)))) for s in buf)
+    sc = 0.85 / peak
+    raw = b"".join(struct.pack("<h", max(-32767, min(32767, int(s * sc * 32767)))) for s in buf)
 
     with open(path, "wb") as f:
-        data_size = len(raw)
+        ds = len(raw)
         f.write(b"RIFF")
-        f.write(struct.pack("<I", 36 + data_size))
-        f.write(b"WAVE")
-        f.write(b"fmt ")
+        f.write(struct.pack("<I", 36 + ds))
+        f.write(b"WAVEfmt ")
         f.write(struct.pack("<I", 16))
-        f.write(struct.pack("<H", 1))
-        f.write(struct.pack("<H", 1))
+        f.write(struct.pack("<HH", 1, 1))
         f.write(struct.pack("<I", sr))
         f.write(struct.pack("<I", sr * 2))
-        f.write(struct.pack("<H", 2))
-        f.write(struct.pack("<H", 16))
+        f.write(struct.pack("<HH", 2, 16))
         f.write(b"data")
-        f.write(struct.pack("<I", data_size))
+        f.write(struct.pack("<I", ds))
         f.write(raw)
 
 
-# ── メイン生成ロジック ──────────────────────────────
+# ── メイン ──────────────────────────────────────
 
 def generate_video():
     os.makedirs(FRAMES_DIR, exist_ok=True)
 
-    # 1. 画像をダウンロード（Noneの場合はスキップ）
+    # 1. 画像をダウンロード
     print("📷 画像をダウンロード中...")
-    images = []
-    for i, scene in enumerate(SCENES):
-        print(f"  Scene {i+1}/{len(SCENES)}")
-        if scene["image"] is None:
-            images.append(None)
-        else:
-            img = download_image(scene["image"])
-            images.append(img)
+    images = {"exterior": download_image(IMG_EXTERIOR)}
+    course_images = []
+    for i, c in enumerate(COURSE):
+        print(f"  Course {i+1}/{len(COURSE)}: {c['name']}")
+        course_images.append(download_image(c["image"]))
 
-    # 2. フレームを生成
-    print(f"\n🎬 フレーム生成中 ({FPS}fps, シネマティック処理付き)...")
+    # Ken Burnsエフェクトのパターン（コースごとに交互）
+    kb_effects = ["zoom_in", "zoom_out", "pan_right", "pan_left",
+                  "zoom_in", "zoom_out", "pan_right", "zoom_in", "zoom_out"]
+
+    # 2. フレーム生成
+    print(f"\n🎬 フレーム生成中 ({FPS}fps, ギャラリーモード)...")
     all_frames = []
     total_scenes = len(SCENES)
-    transition_frames = 4  # ブラーフラッシュ: 4フレーム
+    crossfade_frames_count = 8  # クロスフェード: 8フレーム（0.33秒）
 
-    # 各シーンの最終フレームを保持（トランジション用）
     prev_last_frame = None
 
     for si, scene in enumerate(SCENES):
         duration = scene["duration"]
         n_frames = int(duration * FPS)
-        texts = scene["texts"]
-        text_delay = scene.get("text_delay", 0.0)
-        transition = scene.get("transition", "cut")
-        gold_line_cfg = scene.get("gold_line", None)
-
+        scene_type = scene["type"]
         scene_frames = []
 
         for fi in range(n_frames):
-            t = fi / max(1, n_frames - 1)
-            time_s = fi / FPS
-
-            # Ken Burns
-            kb_frame = apply_ken_burns(images[si], scene["effect"], t, WIDTH, HEIGHT)
-
-            has_image = scene["image"] is not None
-
-            # グラデーションオーバーレイ（画像シーンのみ）
-            if has_image:
-                frame = draw_gradient_overlay(kb_frame)
+            if scene_type == "opening":
+                frame = render_opening(fi, n_frames, images)
+            elif scene_type == "course":
+                ci = scene["course_idx"]
+                frame = render_course(fi, n_frames, COURSE[ci],
+                                      course_images[ci], kb_effects[ci])
+            elif scene_type == "text_card":
+                frame = render_text_card(fi, n_frames)
+            elif scene_type == "cta":
+                frame = render_cta(fi, n_frames, images["exterior"])
             else:
-                frame = kb_frame
+                frame = Image.new("RGB", (WIDTH, HEIGHT), BG_COLOR)
 
-            # テキスト進捗（クイック出現）
-            text_prog = []
-            for ti in range(len(texts)):
-                delay = text_delay + ti * 0.18
-                if time_s < delay:
-                    text_prog.append(0.0)
-                else:
-                    raw = min(1.0, (time_s - delay) / 0.4)
-                    text_prog.append(raw)
-
-            scene_progress = time_s / max(0.01, duration)
-            frame = draw_text_overlay(frame, texts, text_prog,
-                                      scene_progress, gold_line_cfg)
-
-            # プログレスバー
-            frame = draw_progress_bar(frame, si, total_scenes, t)
-
-            # シネマティック映像パイプライン
-            global_frame_idx = len(all_frames) + fi
-            frame = apply_cinematic_pipeline(frame, global_frame_idx, has_image)
-
-            # シーン末尾フェードアウト（最後のシーンのみ）
-            if si == total_scenes - 1:
-                fade_out_start = 0.82
-                if t > fade_out_start:
-                    fade_t = (t - fade_out_start) / (1.0 - fade_out_start)
-                    black = Image.new("RGB", (WIDTH, HEIGHT), BG_COLOR)
-                    frame = crossfade_frames(frame, black, ease_in_out(fade_t))
+            # シネマティック処理（コースと外観シーンのみ画像ありとして扱う）
+            global_idx = len(all_frames) + fi
+            frame = apply_cinematic(frame, global_idx)
 
             scene_frames.append(frame)
 
-        # トランジション挿入
-        if si > 0 and transition == "blur_flash" and prev_last_frame is not None:
-            trans_frames = make_blur_flash_transition(
-                prev_last_frame, scene_frames[0], transition_frames)
-            all_frames.extend(trans_frames)
-        elif si > 0 and transition == "cut":
-            pass  # ハードカット — そのまま
+        # クロスフェードトランジション
+        if si > 0 and prev_last_frame is not None and len(scene_frames) > 0:
+            cf_count = min(crossfade_frames_count, len(scene_frames))
+            trans = []
+            for ci in range(cf_count):
+                blend_t = ease_in_out((ci + 1) / cf_count)
+                blended = Image.blend(prev_last_frame, scene_frames[ci], blend_t)
+                trans.append(blended)
+            # トランジション分を差し替え
+            all_frames.extend(trans)
+            all_frames.extend(scene_frames[cf_count:])
+        else:
+            all_frames.extend(scene_frames)
 
-        all_frames.extend(scene_frames)
         prev_last_frame = scene_frames[-1] if scene_frames else None
-        print(f"  Scene {si+1}/{total_scenes} done ({n_frames} frames)")
+        print(f"  Scene {si+1}/{total_scenes} ({scene_type}) done ({n_frames} frames)")
 
     # 3. フレーム保存
     print(f"\n💾 {len(all_frames)} フレームを保存中...")
     for i, frame in enumerate(all_frames):
         frame.save(os.path.join(FRAMES_DIR, f"frame_{i:04d}.png"), "PNG")
 
-    # 4. GIFアニメーション生成
+    # 4. GIF
     print("\n🎞️  GIFアニメーション生成中...")
     gif_path = os.path.join(OUTPUT_DIR, "reels_video.gif")
     gif_w, gif_h = 270, 480
@@ -918,7 +811,7 @@ def generate_video():
     gif_size = os.path.getsize(gif_path) / (1024 * 1024)
     print(f"  → {gif_path} ({gif_size:.1f} MB)")
 
-    # 5. WebPアニメーション生成
+    # 5. WebP
     print("\n🎞️  WebPアニメーション生成中...")
     webp_path = os.path.join(OUTPUT_DIR, "reels_video.webp")
     webp_frames = [f.resize((gif_w, gif_h), Image.LANCZOS) for f in all_frames]
@@ -929,7 +822,7 @@ def generate_video():
     webp_size = os.path.getsize(webp_path) / (1024 * 1024)
     print(f"  → {webp_path} ({webp_size:.1f} MB)")
 
-    # 6. MP4動画生成
+    # 6. MP4
     total_duration = len(all_frames) / FPS
     mp4_path = os.path.join(OUTPUT_DIR, "reels_video.mp4")
     if shutil.which("ffmpeg"):
@@ -949,7 +842,6 @@ def generate_video():
             print(f"  ⚠️  MP4生成に失敗: {result.stderr[-200:]}")
             mp4_path = None
         else:
-            # BGM準備
             bgm_source = None
             if os.path.exists(BGM_FILE):
                 bgm_source = BGM_FILE
@@ -962,7 +854,6 @@ def generate_video():
             bgm_size = os.path.getsize(bgm_source) / 1024
             print(f"  → {bgm_source} ({bgm_size:.0f} KB)")
 
-            # 映像 + BGM合成
             print("\n🎬 映像とBGMを合成中...")
             fade_out_sec = 2.0
             audio_filter = (
@@ -995,11 +886,8 @@ def generate_video():
                 print(f"  → {mp4_path} ({mp4_size:.1f} MB)")
     else:
         print("\n⚠️  ffmpegが見つかりません。MP4生成をスキップ。")
-        print("   macOS:  brew install ffmpeg")
-        print("   Ubuntu: sudo apt install ffmpeg")
         mp4_path = None
 
-    # 7. 完了サマリー
     print(f"\n✅ 完了！")
     print(f"   フレーム数: {len(all_frames)}")
     print(f"   合計秒数:   {total_duration:.1f}秒")
