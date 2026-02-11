@@ -9,15 +9,25 @@ PillowのみでReels動画（9:16）を生成します。
     python3 generate_reels_video.py
 
 出力:
+    output/reels_video.mp4   — MP4動画（メイン出力）
     output/reels_video.gif   — GIFアニメーション
     output/reels_video.webp  — WebPアニメーション（高品質）
     output/frames/           — 全フレーム連番PNG
+
+必要なもの:
+    pip3 install Pillow
+    ffmpeg（MP4生成に必要。なくてもGIF/WebPは生成される）
+
+    macOS:   brew install ffmpeg
+    Ubuntu:  sudo apt install ffmpeg
 """
 
 import os
 import io
 import math
+import shutil
 import struct
+import subprocess
 import zlib
 import urllib.request
 from PIL import Image, ImageDraw, ImageFont, ImageFilter
@@ -506,33 +516,45 @@ def generate_video():
     webp_size = os.path.getsize(webp_path) / (1024 * 1024)
     print(f"  → {webp_path} ({webp_size:.1f} MB)")
 
-    # 6. フルサイズWebP版も生成
-    print("\n🎞️  フルサイズWebP生成中...")
-    webp_full_path = os.path.join(OUTPUT_DIR, "reels_video_fullsize.webp")
-    all_frames[0].save(
-        webp_full_path,
-        save_all=True,
-        append_images=all_frames[1:],
-        duration=int(1000 / FPS),
-        loop=0,
-        quality=60,
-        method=4,
-    )
-    full_size = os.path.getsize(webp_full_path) / (1024 * 1024)
-    print(f"  → {webp_full_path} ({full_size:.1f} MB)")
+    # 6. MP4動画生成（FFmpegが使える場合）
+    mp4_path = os.path.join(OUTPUT_DIR, "reels_video.mp4")
+    if shutil.which("ffmpeg"):
+        print("\n🎬 MP4動画生成中...")
+        cmd = [
+            "ffmpeg", "-y",
+            "-framerate", str(FPS),
+            "-i", os.path.join(FRAMES_DIR, "frame_%04d.png"),
+            "-c:v", "libx264",
+            "-preset", "slow",
+            "-crf", "18",
+            "-pix_fmt", "yuv420p",
+            "-vf", f"scale={WIDTH}:{HEIGHT}",
+            mp4_path,
+        ]
+        result = subprocess.run(cmd, capture_output=True, text=True)
+        if result.returncode == 0:
+            mp4_size = os.path.getsize(mp4_path) / (1024 * 1024)
+            print(f"  → {mp4_path} ({mp4_size:.1f} MB)")
+        else:
+            print(f"  ⚠️  MP4生成に失敗しました: {result.stderr[-200:]}")
+            mp4_path = None
+    else:
+        print("\n⚠️  ffmpegが見つかりません。MP4生成をスキップします。")
+        print("   インストール方法:")
+        print("     macOS:  brew install ffmpeg")
+        print("     Ubuntu: sudo apt install ffmpeg")
+        mp4_path = None
 
+    # 7. 完了サマリー
     print(f"\n✅ 完了！")
     print(f"   フレーム数: {len(all_frames)}")
     print(f"   合計秒数:   {len(all_frames)/FPS:.1f}秒")
     print(f"\n📁 出力ファイル:")
-    print(f"   {gif_path}             — GIF（SNS共有向け）")
-    print(f"   {webp_path}            — WebP（高品質、小サイズ）")
-    print(f"   {webp_full_path}  — WebP フルサイズ（540x960）")
-    print(f"   {FRAMES_DIR}/              — 全フレーム連番PNG")
-    print(f"\n💡 Tips:")
-    print(f"   • WebPはブラウザで直接再生可能")
-    print(f"   • 連番PNGからFFmpegでMP4変換:")
-    print(f"     ffmpeg -framerate {FPS} -i {FRAMES_DIR}/frame_%04d.png -c:v libx264 -pix_fmt yuv420p reels.mp4")
+    if mp4_path:
+        print(f"   {mp4_path}   ← Instagramにそのまま投稿可能")
+    print(f"   {gif_path}")
+    print(f"   {webp_path}")
+    print(f"   {FRAMES_DIR}/")
 
 
 if __name__ == "__main__":
