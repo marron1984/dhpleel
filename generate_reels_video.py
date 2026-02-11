@@ -57,137 +57,103 @@ IMG_DESSERT  = "https://github.com/user-attachments/assets/b39bf119-c360-47df-b8
 IMG_NIMONO   = "https://github.com/user-attachments/assets/58250abe-6813-4005-9973-aaf2266b4ea6"
 IMG_OWAN     = "https://github.com/user-attachments/assets/d192340c-a5af-4ef6-acd7-56ed93cb771f"
 
-# ── シーン定義（2025 Reelsトレンド）──────────────────
-# transition: "flash" = 白フラッシュ, "cut" = ハードカット, "crossfade" = クロスフェード
+# ── シーン定義（集客特化トレンドVer）──────────────────
+# transition: "flash" = 白フラッシュ, "cut" = ハードカット
 # anim: "bounce" = ポップイン, "slide_up" = 下からスライド, "fade" = 通常フェード
 SCENES = [
-    {   # 1. フック — 黒背景テキスト（最初の1.5秒で興味を引く）
-        "image": None,
-        "duration": 1.8,
-        "effect": "none",
+    # ━━ PHASE 1: ラピッドモンタージュ（0-2秒）━━━━━━━━━━━
+    # テキストなし、高速4連射 → スクロール停止率MAX
+    {   "image": IMG_SASHIMI,  "duration": 0.5, "effect": "zoom_in",
+        "texts": [], "transition": "cut" },
+    {   "image": IMG_DESSERT,  "duration": 0.5, "effect": "zoom_out",
+        "texts": [], "transition": "cut" },
+    {   "image": IMG_SHIIZAKA, "duration": 0.5, "effect": "pan_right",
+        "texts": [], "transition": "cut" },
+    {   "image": IMG_AGEMONO,  "duration": 0.5, "effect": "zoom_in",
+        "texts": [], "transition": "cut" },
+
+    # ━━ PHASE 2: 店名リビール（2-5秒）━━━━━━━━━━━━━━
+    {   # 5. テキストフック
+        "image": None, "duration": 1.5, "effect": "none",
         "texts": [
-            {"text": "完全予約制の", "y": 0.38, "size": 28, "color": WHITE, "font": "body", "anim": "slide_up"},
-            {"text": "隠れ家割烹", "y": 0.46, "size": 52, "color": GOLD, "spacing": 12, "font": "title", "anim": "bounce"},
+            {"text": "北新地の隠れ家で", "y": 0.38, "size": 26, "color": WHITE, "font": "body", "anim": "slide_up"},
+            {"text": "至福の一夜を", "y": 0.47, "size": 48, "color": GOLD, "spacing": 10, "font": "title", "anim": "bounce"},
         ],
-        "text_delay": 0.0,
-        "transition": "cut",
+        "text_delay": 0.0, "transition": "flash",
     },
-    {   # 2. ミシュラン + 店名（権威づけ）
-        "image": IMG_EXTERIOR,
-        "duration": 2.0,
-        "effect": "zoom_in",
+    {   # 6. ミシュラン + 店名
+        "image": IMG_EXTERIOR, "duration": 1.8, "effect": "zoom_in",
         "texts": [
             {"text": "MICHELIN SELECTED", "y": 0.33, "size": 20, "color": GOLD, "spacing": 6, "font": "accent", "anim": "bounce"},
             {"text": "━━━━", "y": 0.39, "size": 16, "color": GOLD},
-            {"text": "北新地  大嵓埜", "y": 0.45, "size": 48, "color": WHITE, "spacing": 14, "font": "title", "anim": "bounce"},
+            {"text": "大嵓埜", "y": 0.45, "size": 56, "color": WHITE, "spacing": 16, "font": "title", "anim": "bounce"},
         ],
-        "text_delay": 0.15,
-        "transition": "flash",
+        "text_delay": 0.1, "transition": "flash",
     },
-    {   # 3. 先付け
-        "image": IMG_SAKIZUKE,
-        "duration": 1.2,
-        "effect": "zoom_in",
+
+    # ━━ PHASE 3: 料理ショーケース（5-10秒）━━━━━━━━━━━━
+    {   "image": IMG_SAKIZUKE, "duration": 0.9, "effect": "zoom_out",
         "texts": [
             {"text": "先付け", "y": 0.76, "size": 44, "color": WHITE, "spacing": 10, "align": "left", "font": "title", "anim": "bounce"},
-            {"text": "季節野菜のハーモニー", "y": 0.84, "size": 18, "color": (220, 220, 220), "align": "left", "font": "body", "anim": "slide_up"},
         ],
-        "text_delay": 0.0,
-        "transition": "flash",
+        "text_delay": 0.0, "transition": "flash",
     },
-    {   # 4. 刺身
-        "image": IMG_SASHIMI,
-        "duration": 1.2,
-        "effect": "pan_right",
-        "texts": [
-            {"text": "刺  身", "y": 0.76, "size": 44, "color": WHITE, "spacing": 10, "align": "left", "font": "title", "anim": "bounce"},
-            {"text": "海の恵みを華やかに", "y": 0.84, "size": 18, "color": (220, 220, 220), "align": "left", "font": "body", "anim": "slide_up"},
-        ],
-        "text_delay": 0.0,
-        "transition": "flash",
-    },
-    {   # 5. 焼き物
-        "image": IMG_YAKIMONO,
-        "duration": 1.2,
-        "effect": "zoom_out",
+    {   "image": IMG_YAKIMONO, "duration": 0.9, "effect": "pan_left",
         "texts": [
             {"text": "焼き物", "y": 0.76, "size": 44, "color": WHITE, "spacing": 10, "align": "left", "font": "title", "anim": "bounce"},
-            {"text": "竹の子と帆立", "y": 0.84, "size": 18, "color": (220, 220, 220), "align": "left", "font": "body", "anim": "slide_up"},
         ],
-        "text_delay": 0.0,
-        "transition": "flash",
+        "text_delay": 0.0, "transition": "flash",
     },
-    {   # 6. 揚げ物
-        "image": IMG_AGEMONO,
-        "duration": 1.2,
-        "effect": "pan_left",
+    {   "image": IMG_NIMONO, "duration": 0.9, "effect": "zoom_in",
         "texts": [
-            {"text": "揚げ物", "y": 0.76, "size": 44, "color": WHITE, "spacing": 10, "align": "left", "font": "title", "anim": "bounce"},
-            {"text": "サクサクの食感", "y": 0.84, "size": 18, "color": (220, 220, 220), "align": "left", "font": "body", "anim": "slide_up"},
+            {"text": "煮  物", "y": 0.76, "size": 44, "color": WHITE, "spacing": 10, "align": "left", "font": "title", "anim": "bounce"},
         ],
-        "text_delay": 0.0,
-        "transition": "flash",
+        "text_delay": 0.0, "transition": "flash",
     },
-    {   # 7. 強肴
-        "image": IMG_SHIIZAKA,
-        "duration": 1.2,
-        "effect": "zoom_in",
+    {   "image": IMG_OWAN, "duration": 0.9, "effect": "zoom_tilt",
         "texts": [
-            {"text": "強  肴", "y": 0.76, "size": 44, "color": WHITE, "spacing": 10, "align": "left", "font": "title", "anim": "bounce"},
-            {"text": "手まり寿司の贅沢", "y": 0.84, "size": 18, "color": (220, 220, 220), "align": "left", "font": "body", "anim": "slide_up"},
+            {"text": "清  湯", "y": 0.76, "size": 44, "color": WHITE, "spacing": 10, "align": "left", "font": "title", "anim": "bounce"},
         ],
-        "text_delay": 0.0,
-        "transition": "flash",
+        "text_delay": 0.0, "transition": "flash",
     },
-    {   # 8. ご飯
-        "image": IMG_GOHAN,
-        "duration": 1.2,
-        "effect": "zoom_tilt",
+    {   "image": IMG_GOHAN, "duration": 0.9, "effect": "pan_right",
         "texts": [
             {"text": "ご  飯", "y": 0.76, "size": 44, "color": WHITE, "spacing": 10, "align": "left", "font": "title", "anim": "bounce"},
-            {"text": "えびと緑のハーモニー", "y": 0.84, "size": 18, "color": (220, 220, 220), "align": "left", "font": "body", "anim": "slide_up"},
         ],
-        "text_delay": 0.0,
-        "transition": "flash",
+        "text_delay": 0.0, "transition": "flash",
     },
-    {   # 9. デザート（少し長めで余韻）
-        "image": IMG_DESSERT,
-        "duration": 1.5,
-        "effect": "zoom_out",
+
+    # ━━ PHASE 4: 価格 + 緊急性（10-14秒）━━━━━━━━━━━━
+    {   # 12. 価格アンカー
+        "image": IMG_EXTERIOR, "duration": 2.2, "effect": "zoom_in",
         "texts": [
-            {"text": "デザート", "y": 0.76, "size": 44, "color": WHITE, "spacing": 10, "align": "left", "font": "title", "anim": "bounce"},
-            {"text": "苺・メロン・マンゴー", "y": 0.84, "size": 18, "color": (220, 220, 220), "align": "left", "font": "body", "anim": "slide_up"},
+            {"text": "全11品の特別懐石", "y": 0.34, "size": 24, "color": WHITE, "font": "body", "anim": "slide_up"},
+            {"text": "¥30,000〜", "y": 0.43, "size": 60, "color": GOLD, "spacing": 6, "font": "title", "anim": "bounce"},
         ],
-        "text_delay": 0.0,
-        "transition": "flash",
+        "text_delay": 0.1, "transition": "flash",
     },
-    {   # 10. 価格アンカー + 完全予約制（コンバージョン直前の説得）
-        "image": IMG_EXTERIOR,
-        "duration": 3.0,
-        "effect": "zoom_in",
+    {   # 13. 緊急性
+        "image": IMG_EXTERIOR, "duration": 1.8, "effect": "zoom_in",
         "texts": [
-            {"text": "特別懐石コース", "y": 0.32, "size": 24, "color": WHITE, "font": "body", "anim": "slide_up"},
-            {"text": "¥30,000〜", "y": 0.40, "size": 56, "color": GOLD, "spacing": 6, "font": "title", "anim": "bounce"},
-            {"text": "━━━━━━", "y": 0.50, "size": 16, "color": GOLD},
-            {"text": "完全予約制", "y": 0.55, "size": 32, "color": WHITE, "spacing": 8, "font": "title", "anim": "bounce"},
+            {"text": "完全予約制", "y": 0.38, "size": 40, "color": WHITE, "spacing": 10, "font": "title", "anim": "bounce"},
+            {"text": "席数限定", "y": 0.48, "size": 36, "color": GOLD, "spacing": 8, "font": "title", "anim": "bounce"},
         ],
-        "text_delay": 0.2,
-        "transition": "flash",
+        "text_delay": 0.15, "transition": "flash",
     },
-    {   # 11. CTA — 予約誘導（コンバージョン）
-        "image": IMG_EXTERIOR,
-        "duration": 3.5,
-        "effect": "zoom_in",
+
+    # ━━ PHASE 5: CTA（14-18秒）━━━━━━━━━━━━━━━━━
+    {   # 14. 予約誘導
+        "image": IMG_EXTERIOR, "duration": 3.2, "effect": "zoom_in",
         "texts": [
-            {"text": "ご予約・お問い合わせ", "y": 0.28, "size": 22, "color": (200, 200, 200), "font": "body", "anim": "fade"},
-            {"text": "06-6341-3535", "y": 0.36, "size": 48, "color": GOLD, "spacing": 6, "font": "accent", "anim": "bounce"},
-            {"text": "━━━━━━", "y": 0.46, "size": 16, "color": GOLD},
-            {"text": "大嵓埜", "y": 0.52, "size": 48, "color": WHITE, "spacing": 14, "font": "title", "anim": "bounce"},
-            {"text": "北新地 FOODEAR ビル 3F", "y": 0.61, "size": 16, "color": (180, 180, 180), "font": "body"},
-            {"text": "▶ プロフィールから予約", "y": 0.72, "size": 24, "color": GOLD, "spacing": 3, "font": "body", "anim": "bounce"},
+            {"text": "ご予約・お問い合わせ", "y": 0.26, "size": 20, "color": (200, 200, 200), "font": "body", "anim": "fade"},
+            {"text": "06-6341-3535", "y": 0.34, "size": 48, "color": GOLD, "spacing": 6, "font": "accent", "anim": "bounce"},
+            {"text": "━━━━━━", "y": 0.44, "size": 16, "color": GOLD},
+            {"text": "大嵓埜", "y": 0.50, "size": 48, "color": WHITE, "spacing": 14, "font": "title", "anim": "bounce"},
+            {"text": "北新地 FOODEAR ビル 3F", "y": 0.59, "size": 16, "color": (180, 180, 180), "font": "body"},
+            {"text": "DMまたはお電話で予約", "y": 0.68, "size": 26, "color": GOLD, "spacing": 3, "font": "body", "anim": "bounce"},
+            {"text": "▶ プロフィールのリンクから", "y": 0.74, "size": 20, "color": GOLD_LIGHT, "font": "body", "anim": "slide_up"},
         ],
-        "text_delay": 0.15,
-        "transition": "flash",
+        "text_delay": 0.12, "transition": "flash",
     },
 ]
 
@@ -248,22 +214,22 @@ def apply_ken_burns(img, effect, progress, canvas_w, canvas_h):
     t = ease_in_out(progress)
 
     if effect == "zoom_in":
-        scale = 1.0 + 0.12 * t
+        scale = 1.0 + 0.15 * t
         cx, cy = bw / 2, bh / 2
     elif effect == "zoom_out":
-        scale = 1.12 - 0.12 * t
+        scale = 1.15 - 0.15 * t
         cx, cy = bw / 2, bh / 2
     elif effect == "pan_right":
-        scale = 1.08
-        cx = bw / 2 + (bw * 0.04) * (2 * t - 1)
+        scale = 1.10
+        cx = bw / 2 + (bw * 0.05) * (2 * t - 1)
         cy = bh / 2
     elif effect == "pan_left":
-        scale = 1.08
-        cx = bw / 2 - (bw * 0.04) * (2 * t - 1)
+        scale = 1.10
+        cx = bw / 2 - (bw * 0.05) * (2 * t - 1)
         cy = bh / 2
     elif effect == "zoom_tilt":
-        scale = 1.0 + 0.08 * t
-        cx = bw / 2 + math.sin(t * 0.5) * 5
+        scale = 1.0 + 0.10 * t
+        cx = bw / 2 + math.sin(t * 0.5) * 6
         cy = bh / 2
     elif effect == "none":
         return Image.new("RGB", (canvas_w, canvas_h), BG_COLOR)
