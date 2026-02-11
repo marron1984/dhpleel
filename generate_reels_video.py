@@ -25,6 +25,7 @@ PillowのみでReels動画（9:16）を生成します。
 import os
 import io
 import math
+import random
 import shutil
 import struct
 import subprocess
@@ -51,10 +52,10 @@ SCENES = [
         "duration": 2.5,
         "effect": "zoom_in",
         "texts": [
-            {"text": "MICHELIN SELECTED", "y": 0.32, "size": 16, "color": GOLD, "spacing": 4},
-            {"text": "━━", "y": 0.37, "size": 14, "color": GOLD},
-            {"text": "北新地 大嵓埜", "y": 0.43, "size": 36, "color": WHITE, "spacing": 8},
-            {"text": "季節の恵みを味わう、特別なひととき", "y": 0.50, "size": 16, "color": GOLD_LIGHT, "spacing": 2},
+            {"text": "MICHELIN SELECTED", "y": 0.32, "size": 16, "color": GOLD, "spacing": 6, "font": "accent"},
+            {"text": "━━━━", "y": 0.37, "size": 14, "color": GOLD},
+            {"text": "北新地  大嵓埜", "y": 0.43, "size": 40, "color": WHITE, "spacing": 12, "font": "title"},
+            {"text": "季節の恵みを味わう、特別なひととき", "y": 0.51, "size": 16, "color": GOLD_LIGHT, "spacing": 3, "font": "body"},
         ],
         "text_delay": 0.3,
     },
@@ -63,8 +64,8 @@ SCENES = [
         "duration": 2.2,
         "effect": "zoom_out",
         "texts": [
-            {"text": "先付け", "y": 0.78, "size": 32, "color": WHITE, "spacing": 6, "align": "left"},
-            {"text": "爽やかな季節野菜のハーモニー", "y": 0.84, "size": 15, "color": (220, 220, 220), "spacing": 2, "align": "left"},
+            {"text": "先付け", "y": 0.78, "size": 34, "color": WHITE, "spacing": 8, "align": "left", "font": "title"},
+            {"text": "爽やかな季節野菜のハーモニー", "y": 0.85, "size": 14, "color": (220, 220, 220), "spacing": 2, "align": "left", "font": "body"},
         ],
         "text_delay": 0.2,
     },
@@ -73,8 +74,8 @@ SCENES = [
         "duration": 2.2,
         "effect": "pan_right",
         "texts": [
-            {"text": "刺  身", "y": 0.78, "size": 32, "color": WHITE, "spacing": 6, "align": "left"},
-            {"text": "海の恵みを華やかに", "y": 0.84, "size": 15, "color": (220, 220, 220), "spacing": 2, "align": "left"},
+            {"text": "刺  身", "y": 0.78, "size": 34, "color": WHITE, "spacing": 8, "align": "left", "font": "title"},
+            {"text": "海の恵みを華やかに", "y": 0.85, "size": 14, "color": (220, 220, 220), "spacing": 2, "align": "left", "font": "body"},
         ],
         "text_delay": 0.2,
     },
@@ -83,8 +84,8 @@ SCENES = [
         "duration": 2.2,
         "effect": "zoom_tilt",
         "texts": [
-            {"text": "煮  物", "y": 0.78, "size": 32, "color": WHITE, "spacing": 6, "align": "left"},
-            {"text": "牛肉と春の山菜", "y": 0.84, "size": 15, "color": (220, 220, 220), "spacing": 2, "align": "left"},
+            {"text": "煮  物", "y": 0.78, "size": 34, "color": WHITE, "spacing": 8, "align": "left", "font": "title"},
+            {"text": "牛肉と春の山菜", "y": 0.85, "size": 14, "color": (220, 220, 220), "spacing": 2, "align": "left", "font": "body"},
         ],
         "text_delay": 0.2,
     },
@@ -93,8 +94,8 @@ SCENES = [
         "duration": 2.0,
         "effect": "zoom_in",
         "texts": [
-            {"text": "焼き物", "y": 0.78, "size": 32, "color": WHITE, "spacing": 6, "align": "left"},
-            {"text": "香ばしい竹の子と帆立", "y": 0.84, "size": 15, "color": (220, 220, 220), "spacing": 2, "align": "left"},
+            {"text": "焼き物", "y": 0.78, "size": 34, "color": WHITE, "spacing": 8, "align": "left", "font": "title"},
+            {"text": "香ばしい竹の子と帆立", "y": 0.85, "size": 14, "color": (220, 220, 220), "spacing": 2, "align": "left", "font": "body"},
         ],
         "text_delay": 0.2,
     },
@@ -103,8 +104,8 @@ SCENES = [
         "duration": 2.0,
         "effect": "pan_left",
         "texts": [
-            {"text": "揚げ物", "y": 0.78, "size": 32, "color": WHITE, "spacing": 6, "align": "left"},
-            {"text": "サクサクの食感で心を掴む", "y": 0.84, "size": 15, "color": (220, 220, 220), "spacing": 2, "align": "left"},
+            {"text": "揚げ物", "y": 0.78, "size": 34, "color": WHITE, "spacing": 8, "align": "left", "font": "title"},
+            {"text": "サクサクの食感で心を掴む", "y": 0.85, "size": 14, "color": (220, 220, 220), "spacing": 2, "align": "left", "font": "body"},
         ],
         "text_delay": 0.2,
     },
@@ -113,8 +114,8 @@ SCENES = [
         "duration": 1.8,
         "effect": "zoom_out",
         "texts": [
-            {"text": "強  肴", "y": 0.78, "size": 32, "color": WHITE, "spacing": 6, "align": "left"},
-            {"text": "手まり寿司の贅沢", "y": 0.84, "size": 15, "color": (220, 220, 220), "spacing": 2, "align": "left"},
+            {"text": "強  肴", "y": 0.78, "size": 34, "color": WHITE, "spacing": 8, "align": "left", "font": "title"},
+            {"text": "手まり寿司の贅沢", "y": 0.85, "size": 14, "color": (220, 220, 220), "spacing": 2, "align": "left", "font": "body"},
         ],
         "text_delay": 0.2,
     },
@@ -123,8 +124,8 @@ SCENES = [
         "duration": 1.8,
         "effect": "zoom_tilt",
         "texts": [
-            {"text": "清  湯", "y": 0.78, "size": 32, "color": WHITE, "spacing": 6, "align": "left"},
-            {"text": "優雅なフィナーレ", "y": 0.84, "size": 15, "color": (220, 220, 220), "spacing": 2, "align": "left"},
+            {"text": "清  湯", "y": 0.78, "size": 34, "color": WHITE, "spacing": 8, "align": "left", "font": "title"},
+            {"text": "優雅なフィナーレ", "y": 0.85, "size": 14, "color": (220, 220, 220), "spacing": 2, "align": "left", "font": "body"},
         ],
         "text_delay": 0.2,
     },
@@ -133,8 +134,8 @@ SCENES = [
         "duration": 2.2,
         "effect": "zoom_in",
         "texts": [
-            {"text": "ご  飯", "y": 0.78, "size": 32, "color": WHITE, "spacing": 6, "align": "left"},
-            {"text": "えびと緑のハーモニー", "y": 0.84, "size": 15, "color": (220, 220, 220), "spacing": 2, "align": "left"},
+            {"text": "ご  飯", "y": 0.78, "size": 34, "color": WHITE, "spacing": 8, "align": "left", "font": "title"},
+            {"text": "えびと緑のハーモニー", "y": 0.85, "size": 14, "color": (220, 220, 220), "spacing": 2, "align": "left", "font": "body"},
         ],
         "text_delay": 0.2,
         "fade_in": True,
@@ -144,8 +145,8 @@ SCENES = [
         "duration": 2.2,
         "effect": "zoom_out",
         "texts": [
-            {"text": "デザート", "y": 0.78, "size": 32, "color": WHITE, "spacing": 6, "align": "left"},
-            {"text": "苺・メロン・マンゴーの甘美", "y": 0.84, "size": 15, "color": (220, 220, 220), "spacing": 2, "align": "left"},
+            {"text": "デザート", "y": 0.78, "size": 34, "color": WHITE, "spacing": 8, "align": "left", "font": "title"},
+            {"text": "苺・メロン・マンゴーの甘美", "y": 0.85, "size": 14, "color": (220, 220, 220), "spacing": 2, "align": "left", "font": "body"},
         ],
         "text_delay": 0.2,
     },
@@ -154,11 +155,11 @@ SCENES = [
         "duration": 3.0,
         "effect": "zoom_in",
         "texts": [
-            {"text": "接待・記念日に", "y": 0.30, "size": 18, "color": WHITE, "spacing": 3},
-            {"text": "━━", "y": 0.36, "size": 14, "color": GOLD},
-            {"text": "大嵓埜", "y": 0.43, "size": 42, "color": WHITE, "spacing": 10},
-            {"text": "06-6341-3535", "y": 0.53, "size": 30, "color": GOLD, "spacing": 4},
-            {"text": "北新地 FOODEAR ビル 3F", "y": 0.60, "size": 13, "color": (180, 180, 180), "spacing": 2},
+            {"text": "接待・記念日に", "y": 0.30, "size": 18, "color": WHITE, "spacing": 4, "font": "body"},
+            {"text": "━━━━", "y": 0.36, "size": 14, "color": GOLD},
+            {"text": "大嵓埜", "y": 0.43, "size": 46, "color": WHITE, "spacing": 14, "font": "title"},
+            {"text": "06-6341-3535", "y": 0.54, "size": 28, "color": GOLD, "spacing": 5, "font": "accent"},
+            {"text": "北新地 FOODEAR ビル 3F", "y": 0.61, "size": 13, "color": (180, 180, 180), "spacing": 2, "font": "body"},
         ],
         "text_delay": 0.25,
     },
@@ -267,32 +268,161 @@ def draw_gradient_overlay(frame):
     return Image.alpha_composite(frame_rgba, overlay).convert("RGB")
 
 
-def get_font(size):
-    """フォント取得（日本語対応のシステムフォントを検索）"""
-    font_paths = [
+def generate_bgm_wav(path, duration_sec):
+    """ピアノ風アンビエントBGMをWAVとして生成（外部ライブラリ不要）
+
+    日本料理店にふさわしい落ち着いた和風アンビエント。
+    ペンタトニックスケールのピアノ風音色 + リバーブ + パッド。
+    """
+    sr = 44100
+    total_samples = int(sr * duration_sec)
+
+    # 和風ペンタトニック（D minor pentatonic ベース）
+    # D4, F4, G4, A4, C5, D5, F5
+    base_freqs = [293.66, 349.23, 392.00, 440.00, 523.25, 587.33, 698.46]
+
+    rng = random.Random(42)  # 再現性のため固定シード
+
+    def piano_tone(freq, dur, volume=0.3):
+        """ピアノ風の減衰する正弦波（倍音付き）"""
+        n = int(sr * dur)
+        samples = []
+        for i in range(n):
+            t = i / sr
+            env = math.exp(-t * 3.0) * volume  # 減衰エンベロープ
+            # 基音 + 軽い倍音でピアノ風の音色
+            val = (math.sin(2 * math.pi * freq * t) * 0.7 +
+                   math.sin(2 * math.pi * freq * 2 * t) * 0.15 +
+                   math.sin(2 * math.pi * freq * 3 * t) * 0.08 +
+                   math.sin(2 * math.pi * freq * 5 * t) * 0.03)
+            samples.append(val * env)
+        return samples
+
+    def pad_tone(freq, dur, volume=0.08):
+        """持続するパッド音（背景の厚み）"""
+        n = int(sr * dur)
+        samples = []
+        for i in range(n):
+            t = i / sr
+            # ゆっくりフェードイン・アウト
+            fade_in = min(1.0, t / 2.0)
+            fade_out = min(1.0, (dur - t) / 2.0)
+            env = fade_in * fade_out * volume
+            val = (math.sin(2 * math.pi * freq * t) * 0.5 +
+                   math.sin(2 * math.pi * freq * 1.002 * t) * 0.5)  # デチューン
+            samples.append(val * env)
+        return samples
+
+    # メインバッファ
+    buf = [0.0] * total_samples
+
+    # 背景パッド（低音D3 + A3）
+    pad_d = pad_tone(146.83, duration_sec, 0.06)
+    pad_a = pad_tone(220.00, duration_sec, 0.04)
+    for i in range(min(len(pad_d), total_samples)):
+        buf[i] += pad_d[i] + pad_a[i]
+
+    # ピアノノート配置（ランダムだが再現可能）
+    time_pos = 0.5  # 0.5秒後から開始
+    while time_pos < duration_sec - 2.0:
+        freq = rng.choice(base_freqs)
+        note_dur = rng.choice([1.5, 2.0, 2.5, 3.0])
+        vol = rng.uniform(0.15, 0.30)
+        note = piano_tone(freq, note_dur, vol)
+        start_idx = int(time_pos * sr)
+        for i in range(min(len(note), total_samples - start_idx)):
+            buf[start_idx + i] += note[i]
+        time_pos += rng.uniform(1.0, 2.5)
+
+    # 全体フェードイン/フェードアウト
+    fade_in_samples = int(sr * 1.5)
+    fade_out_samples = int(sr * 2.5)
+    for i in range(min(fade_in_samples, total_samples)):
+        buf[i] *= i / fade_in_samples
+    for i in range(min(fade_out_samples, total_samples)):
+        idx = total_samples - 1 - i
+        buf[idx] *= i / fade_out_samples
+
+    # クリッピング防止 & 16-bit変換
+    peak = max(abs(s) for s in buf) or 1.0
+    scale = 0.85 / peak
+    raw = b"".join(struct.pack("<h", max(-32767, min(32767, int(s * scale * 32767)))) for s in buf)
+
+    # WAVヘッダー書き込み
+    with open(path, "wb") as f:
+        data_size = len(raw)
+        f.write(b"RIFF")
+        f.write(struct.pack("<I", 36 + data_size))
+        f.write(b"WAVE")
+        f.write(b"fmt ")
+        f.write(struct.pack("<I", 16))       # chunk size
+        f.write(struct.pack("<H", 1))        # PCM
+        f.write(struct.pack("<H", 1))        # mono
+        f.write(struct.pack("<I", sr))       # sample rate
+        f.write(struct.pack("<I", sr * 2))   # byte rate
+        f.write(struct.pack("<H", 2))        # block align
+        f.write(struct.pack("<H", 16))       # bits per sample
+        f.write(b"data")
+        f.write(struct.pack("<I", data_size))
+        f.write(raw)
+
+
+def get_font(size, style="title"):
+    """フォント取得（用途別に最適なフォントを選択）
+
+    style:
+        "title"  — 明朝体（タイトル・料理名・店名に）
+        "body"   — ゴシック体（説明文・住所に）
+        "accent" — 明朝体（英字・装飾テキストに）
+    """
+    # 明朝体（上品・高級感）: タイトル・料理名・店名
+    mincho_paths = [
+        # macOS
+        "/System/Library/Fonts/ヒラギノ明朝 ProN.ttc",
+        "/System/Library/Fonts/ヒラギノ明朝 ProN W6.otf",
+        "/Library/Fonts/Yu Mincho.ttc",
+        # Linux
+        "/usr/share/fonts/opentype/ipafont-mincho/ipamp.ttf",
+        "/usr/share/fonts/opentype/ipafont-mincho/ipam.ttf",
+        "/usr/share/fonts/truetype/fonts-japanese-mincho.ttf",
+        "/usr/share/fonts/opentype/noto/NotoSerifCJK-Regular.ttc",
+        "/usr/share/fonts/noto-cjk/NotoSerifCJK-Regular.ttc",
+    ]
+
+    # ゴシック体（読みやすい）: 説明文・住所
+    gothic_paths = [
         # macOS
         "/System/Library/Fonts/ヒラギノ角ゴシック W3.ttc",
         "/System/Library/Fonts/ヒラギノ角ゴシック W6.ttc",
         "/System/Library/Fonts/Hiragino Sans GB.ttc",
-        "/System/Library/Fonts/ヒラギノ明朝 ProN.ttc",
-        "/Library/Fonts/Arial Unicode.ttf",
         # Linux
         "/usr/share/fonts/opentype/ipafont-gothic/ipagp.ttf",
         "/usr/share/fonts/opentype/ipafont-gothic/ipag.ttf",
         "/usr/share/fonts/truetype/fonts-japanese-gothic.ttf",
-        "/usr/share/fonts/truetype/wqy/wqy-zenhei.ttc",
-        "/usr/share/fonts/opentype/noto/NotoSerifCJK-Regular.ttc",
-        "/usr/share/fonts/noto-cjk/NotoSerifCJK-Regular.ttc",
         "/usr/share/fonts/truetype/noto/NotoSansCJK-Regular.ttc",
-        "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+        "/usr/share/fonts/truetype/wqy/wqy-zenhei.ttc",
     ]
-    for fp in font_paths:
+
+    if style in ("title", "accent"):
+        search_order = mincho_paths + gothic_paths
+    else:
+        search_order = gothic_paths + mincho_paths
+
+    for fp in search_order:
         if os.path.exists(fp):
             try:
                 return ImageFont.truetype(fp, size)
             except Exception:
                 continue
-    # フォールバック
+
+    # 最終フォールバック
+    fallback = ["/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"]
+    for fp in fallback:
+        if os.path.exists(fp):
+            try:
+                return ImageFont.truetype(fp, size)
+            except Exception:
+                continue
     return ImageFont.load_default()
 
 
@@ -322,7 +452,7 @@ def draw_text_overlay(frame, texts, text_progress):
         alpha = int(255 * tp)
         y_offset = int(12 * (1 - tp))  # 下からフェードアップ
 
-        font = get_font(t["size"])
+        font = get_font(t["size"], t.get("font", "title"))
         text_str = t["text"]
         color = t["color"]
         y_pos = int(HEIGHT * t["y"]) + y_offset
@@ -517,9 +647,12 @@ def generate_video():
     print(f"  → {webp_path} ({webp_size:.1f} MB)")
 
     # 6. MP4動画生成（FFmpegが使える場合）
+    total_duration = len(all_frames) / FPS
     mp4_path = os.path.join(OUTPUT_DIR, "reels_video.mp4")
     if shutil.which("ffmpeg"):
+        # 6a. 無音MP4を先に生成
         print("\n🎬 MP4動画生成中...")
+        mp4_silent = os.path.join(OUTPUT_DIR, "reels_video_silent.mp4")
         cmd = [
             "ffmpeg", "-y",
             "-framerate", str(FPS),
@@ -529,15 +662,44 @@ def generate_video():
             "-crf", "18",
             "-pix_fmt", "yuv420p",
             "-vf", f"scale={WIDTH}:{HEIGHT}",
-            mp4_path,
+            mp4_silent,
         ]
         result = subprocess.run(cmd, capture_output=True, text=True)
-        if result.returncode == 0:
-            mp4_size = os.path.getsize(mp4_path) / (1024 * 1024)
-            print(f"  → {mp4_path} ({mp4_size:.1f} MB)")
-        else:
+        if result.returncode != 0:
             print(f"  ⚠️  MP4生成に失敗しました: {result.stderr[-200:]}")
             mp4_path = None
+        else:
+            # 6b. BGM生成
+            print("\n🎵 BGM生成中（ピアノアンビエント）...")
+            bgm_path = os.path.join(OUTPUT_DIR, "bgm.wav")
+            generate_bgm_wav(bgm_path, total_duration)
+            bgm_size = os.path.getsize(bgm_path) / 1024
+            print(f"  → {bgm_path} ({bgm_size:.0f} KB)")
+
+            # 6c. 映像 + BGM合成
+            print("\n🎬 映像とBGMを合成中...")
+            cmd_merge = [
+                "ffmpeg", "-y",
+                "-i", mp4_silent,
+                "-i", bgm_path,
+                "-c:v", "copy",
+                "-c:a", "aac",
+                "-b:a", "128k",
+                "-shortest",
+                mp4_path,
+            ]
+            result2 = subprocess.run(cmd_merge, capture_output=True, text=True)
+            if result2.returncode == 0:
+                mp4_size = os.path.getsize(mp4_path) / (1024 * 1024)
+                print(f"  → {mp4_path} ({mp4_size:.1f} MB) ♪ BGM付き")
+                # 一時ファイル削除
+                os.remove(mp4_silent)
+                os.remove(bgm_path)
+            else:
+                print(f"  ⚠️  BGM合成に失敗。無音版を使用します: {result2.stderr[-200:]}")
+                os.rename(mp4_silent, mp4_path)
+                mp4_size = os.path.getsize(mp4_path) / (1024 * 1024)
+                print(f"  → {mp4_path} ({mp4_size:.1f} MB)")
     else:
         print("\n⚠️  ffmpegが見つかりません。MP4生成をスキップします。")
         print("   インストール方法:")
@@ -548,10 +710,10 @@ def generate_video():
     # 7. 完了サマリー
     print(f"\n✅ 完了！")
     print(f"   フレーム数: {len(all_frames)}")
-    print(f"   合計秒数:   {len(all_frames)/FPS:.1f}秒")
+    print(f"   合計秒数:   {total_duration:.1f}秒")
     print(f"\n📁 出力ファイル:")
     if mp4_path:
-        print(f"   {mp4_path}   ← Instagramにそのまま投稿可能")
+        print(f"   {mp4_path}   ← Instagramにそのまま投稿可能（BGM付き♪）")
     print(f"   {gif_path}")
     print(f"   {webp_path}")
     print(f"   {FRAMES_DIR}/")

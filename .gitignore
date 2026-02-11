@@ -3,3 +3,5 @@ output/.cache/
 output/reels_video.gif
 output/reels_video.webp
 output/reels_video_fullsize.webp
+output/reels_video_silent.mp4
+output/bgm.wav
