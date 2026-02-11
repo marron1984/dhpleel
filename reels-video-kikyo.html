@@ -1,0 +1,1461 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Instagram Reels | 北新地 大嵓埜 桔梗色コース 二月の献立</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@200;300;400;500;600;700;900&family=Noto+Sans+JP:wght@300;400;500;700;900&display=swap');
+
+        :root {
+            --gold: #C4A265;
+            --gold-light: #E8D5A8;
+            --dark: #0A0A0A;
+            --accent: #D4AF37;
+            --kikyo: #6A4C93;
+            --kikyo-light: #9B7FBF;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: #111;
+            font-family: 'Noto Sans JP', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            color: #fff;
+            overflow-x: hidden;
+        }
+
+        .page-title {
+            font-family: 'Noto Serif JP', serif;
+            font-weight: 300;
+            font-size: 14px;
+            letter-spacing: 4px;
+            color: var(--gold);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .algo-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #6A4C93, #9B7FBF, #C4A265);
+            color: #fff;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            padding: 3px 10px;
+            border-radius: 10px;
+            margin-left: 8px;
+            vertical-align: middle;
+        }
+
+        .course-badge {
+            display: inline-block;
+            font-family: 'Noto Serif JP', serif;
+            font-size: 11px;
+            font-weight: 400;
+            letter-spacing: 2px;
+            color: var(--kikyo-light);
+            margin-left: 6px;
+        }
+
+        /* Phone Frame */
+        .phone-wrapper {
+            position: relative;
+            width: 360px;
+            height: 640px;
+            border-radius: 40px;
+            background: #000;
+            box-shadow: 0 0 0 3px #333, 0 0 0 6px #1a1a1a, 0 20px 60px rgba(0,0,0,0.8);
+            overflow: hidden;
+        }
+
+        .phone-notch {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px;
+            height: 24px;
+            background: #000;
+            border-radius: 0 0 16px 16px;
+            z-index: 100;
+        }
+
+        /* Reels Container */
+        .reels-container {
+            position: absolute;
+            inset: 0;
+            overflow: hidden;
+            background: #000;
+            border-radius: 37px;
+        }
+
+        /* Scene (each slide) */
+        .scene {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            z-index: 1;
+        }
+
+        .scene.active {
+            opacity: 1;
+            z-index: 10;
+        }
+
+        .scene.exiting {
+            z-index: 5;
+        }
+
+        /* Transition types */
+        .scene.trans-cut { transition: none; }
+        .scene.trans-cut.exiting { opacity: 0; }
+
+        .scene.trans-flash { transition: none; }
+
+        .scene.trans-glitch { transition: none; }
+        .scene.trans-glitch.active {
+            animation: glitchIn 0.15s steps(3) forwards;
+        }
+
+        .scene.trans-fade {
+            transition: opacity 0.4s ease;
+        }
+
+        .scene.trans-zoom { transition: none; }
+        .scene.trans-zoom.active {
+            animation: zoomBurst 0.3s ease-out forwards;
+        }
+
+        .scene.trans-whip { transition: none; }
+        .scene.trans-whip.active {
+            animation: whipIn 0.25s ease-out forwards;
+        }
+
+        .scene.trans-slide-up { transition: none; }
+        .scene.trans-slide-up.active {
+            animation: slideUpIn 0.3s ease-out forwards;
+        }
+
+        @keyframes glitchIn {
+            0% { opacity: 1; transform: translate(8px, -4px) skewX(-2deg); filter: hue-rotate(90deg) saturate(3); }
+            33% { opacity: 1; transform: translate(-6px, 2px) skewX(1deg); filter: hue-rotate(-60deg) saturate(2); }
+            66% { opacity: 1; transform: translate(3px, -1px) skewX(-0.5deg); filter: hue-rotate(30deg) saturate(1.5); }
+            100% { opacity: 1; transform: translate(0) skewX(0); filter: none; }
+        }
+
+        @keyframes zoomBurst {
+            0% { opacity: 1; transform: scale(1.3); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        @keyframes whipIn {
+            0% { opacity: 1; transform: translateX(100%); }
+            100% { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes slideUpIn {
+            0% { opacity: 1; transform: translateY(100%); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Scene Image */
+        .scene-image {
+            position: absolute;
+            inset: 0;
+            background-size: cover;
+            background-position: center;
+            will-change: transform;
+        }
+
+        /* Ken Burns */
+        .scene.active .kb-zoom-in { animation: kbZoomIn 2s ease-out forwards; }
+        .scene.active .kb-zoom-out { animation: kbZoomOut 2s ease-out forwards; }
+        .scene.active .kb-pan-right { animation: kbPanRight 2s ease-out forwards; }
+        .scene.active .kb-pan-left { animation: kbPanLeft 2s ease-out forwards; }
+        .scene.active .kb-zoom-tilt { animation: kbZoomTilt 2s ease-out forwards; }
+        .scene.active .kb-dramatic-zoom { animation: kbDramaticZoom 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards; }
+
+        @keyframes kbZoomIn { from { transform: scale(1); } to { transform: scale(1.2); } }
+        @keyframes kbZoomOut { from { transform: scale(1.25); } to { transform: scale(1); } }
+        @keyframes kbPanRight { from { transform: scale(1.2) translateX(-4%); } to { transform: scale(1.2) translateX(4%); } }
+        @keyframes kbPanLeft { from { transform: scale(1.2) translateX(4%); } to { transform: scale(1.2) translateX(-4%); } }
+        @keyframes kbZoomTilt { from { transform: scale(1) rotate(0deg); } to { transform: scale(1.15) rotate(0.8deg); } }
+        @keyframes kbDramaticZoom {
+            0% { transform: scale(1); }
+            60% { transform: scale(1.25); }
+            100% { transform: scale(1.18); }
+        }
+
+        /* Dark overlay gradient */
+        .scene-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(
+                to bottom,
+                rgba(0,0,0,0.4) 0%,
+                transparent 20%,
+                transparent 40%,
+                rgba(0,0,0,0.6) 70%,
+                rgba(0,0,0,0.85) 100%
+            );
+            z-index: 2;
+        }
+
+        /* Flash white transition overlay */
+        .flash-overlay {
+            position: absolute;
+            inset: 0;
+            background: #fff;
+            z-index: 90;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .flash-overlay.flash-active {
+            animation: transFlash 0.12s ease-out forwards;
+        }
+
+        @keyframes transFlash {
+            0% { opacity: 0.9; }
+            100% { opacity: 0; }
+        }
+
+        /* Glitch RGB split overlay */
+        .glitch-overlay {
+            position: absolute;
+            inset: 0;
+            z-index: 85;
+            opacity: 0;
+            pointer-events: none;
+            mix-blend-mode: screen;
+        }
+
+        .glitch-overlay.glitch-active {
+            animation: glitchFlash 0.2s steps(4) forwards;
+        }
+
+        @keyframes glitchFlash {
+            0% { opacity: 1; background: linear-gradient(90deg, rgba(255,0,0,0.3) 33%, rgba(0,255,0,0.3) 33% 66%, rgba(0,0,255,0.3) 66%); transform: translateX(5px); }
+            25% { opacity: 0.8; background: linear-gradient(90deg, rgba(0,0,255,0.2) 33%, rgba(255,0,0,0.2) 33% 66%, rgba(0,255,0,0.2) 66%); transform: translateX(-3px); }
+            50% { opacity: 0.5; transform: translateX(2px); }
+            100% { opacity: 0; transform: translateX(0); }
+        }
+
+        /* Shimmer overlay */
+        .shimmer-overlay {
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse at 50% 40%, rgba(255,215,140,0.15) 0%, transparent 60%);
+            z-index: 3;
+            opacity: 0;
+        }
+
+        .scene.active .shimmer-overlay {
+            animation: shimmer 1.5s ease-in-out;
+        }
+
+        @keyframes shimmer {
+            0% { opacity: 0; }
+            30% { opacity: 1; }
+            100% { opacity: 0.3; }
+        }
+
+        /* Steam effect */
+        .steam-overlay {
+            position: absolute;
+            top: 20%;
+            left: 30%;
+            width: 40%;
+            height: 40%;
+            z-index: 3;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .steam-overlay::before,
+        .steam-overlay::after {
+            content: '';
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%);
+            border-radius: 50%;
+            filter: blur(8px);
+        }
+
+        .scene.active .steam-overlay {
+            animation: steamFloat 2s ease-in-out forwards;
+        }
+
+        .scene.active .steam-overlay::before {
+            animation: steamRise1 2s ease-out forwards;
+        }
+
+        .scene.active .steam-overlay::after {
+            animation: steamRise2 2s ease-out 0.2s forwards;
+        }
+
+        @keyframes steamFloat {
+            0% { opacity: 0; }
+            20% { opacity: 1; }
+            100% { opacity: 0.5; }
+        }
+
+        @keyframes steamRise1 {
+            0% { transform: translateY(0) scale(0.5); opacity: 0; }
+            50% { opacity: 0.6; }
+            100% { transform: translateY(-80px) scale(1.5); opacity: 0; }
+        }
+
+        @keyframes steamRise2 {
+            0% { transform: translateX(20px) translateY(0) scale(0.5); opacity: 0; }
+            50% { opacity: 0.5; }
+            100% { transform: translateX(30px) translateY(-100px) scale(1.8); opacity: 0; }
+        }
+
+        /* ===================== */
+        /* TEXT OVERLAYS */
+        /* ===================== */
+        .scene-text {
+            position: absolute;
+            z-index: 20;
+            color: #fff;
+        }
+
+        .text-top-safe {
+            top: 110px;
+            left: 24px;
+            right: 24px;
+            text-align: center;
+        }
+
+        .text-center {
+            top: 50%;
+            left: 24px;
+            right: 24px;
+            transform: translateY(-50%);
+            text-align: center;
+        }
+
+        .text-bottom-safe {
+            bottom: 150px;
+            left: 24px;
+            right: 80px;
+            text-align: left;
+        }
+
+        /* Hook text */
+        .hook-text {
+            font-family: 'Noto Sans JP', sans-serif;
+            font-weight: 900;
+            font-size: 28px;
+            line-height: 1.3;
+            letter-spacing: 1px;
+            text-shadow: 0 2px 20px rgba(0,0,0,0.9), 0 0 40px rgba(0,0,0,0.5);
+            -webkit-text-stroke: 0.5px rgba(255,255,255,0.1);
+        }
+
+        .hook-text-gold {
+            color: var(--accent);
+        }
+
+        .hook-text-kikyo {
+            color: var(--kikyo-light);
+        }
+
+        /* Text animations */
+        .scene-text .line {
+            opacity: 0;
+            display: block;
+        }
+
+        .scene.active .scene-text .line.anim-pop {
+            animation: textPop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+
+        .scene.active .scene-text .line.anim-slide {
+            animation: textSlideUp 0.4s ease-out forwards;
+        }
+
+        .scene.active .scene-text .line.anim-scale {
+            animation: textScaleIn 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+        }
+
+        .scene.active .scene-text .line.anim-reveal {
+            animation: textReveal 0.5s ease forwards;
+        }
+
+        .scene.active .scene-text .line:nth-child(1) { animation-delay: 0.05s; }
+        .scene.active .scene-text .line:nth-child(2) { animation-delay: 0.2s; }
+        .scene.active .scene-text .line:nth-child(3) { animation-delay: 0.35s; }
+        .scene.active .scene-text .line:nth-child(4) { animation-delay: 0.5s; }
+        .scene.active .scene-text .line:nth-child(5) { animation-delay: 0.65s; }
+
+        @keyframes textPop {
+            0% { opacity: 0; transform: scale(0.5); }
+            70% { transform: scale(1.08); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        @keyframes textSlideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes textScaleIn {
+            from { opacity: 0; transform: scale(0.8); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        @keyframes textReveal {
+            from { opacity: 0; clip-path: inset(0 100% 0 0); }
+            to { opacity: 1; clip-path: inset(0 0 0 0); }
+        }
+
+        /* Title styles */
+        .title-main {
+            font-family: 'Noto Serif JP', serif;
+            font-weight: 600;
+            font-size: 26px;
+            letter-spacing: 8px;
+            margin-bottom: 6px;
+            text-shadow: 0 2px 16px rgba(0,0,0,0.8);
+        }
+
+        .title-sub {
+            font-family: 'Noto Serif JP', serif;
+            font-weight: 300;
+            font-size: 13px;
+            letter-spacing: 3px;
+            color: var(--gold-light);
+        }
+
+        .title-badge {
+            display: inline-block;
+            border: 1.5px solid var(--gold);
+            color: var(--gold);
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 3px;
+            padding: 5px 16px;
+            margin-bottom: 14px;
+        }
+
+        .course-name-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, rgba(106,76,147,0.5), rgba(155,127,191,0.3));
+            border: 1px solid var(--kikyo-light);
+            color: #fff;
+            font-family: 'Noto Serif JP', serif;
+            font-size: 12px;
+            font-weight: 400;
+            letter-spacing: 4px;
+            padding: 6px 20px;
+            border-radius: 2px;
+            margin-top: 8px;
+        }
+
+        /* Dish text */
+        .dish-name {
+            font-family: 'Noto Serif JP', serif;
+            font-weight: 700;
+            font-size: 24px;
+            letter-spacing: 5px;
+            margin-bottom: 6px;
+            text-shadow: 0 2px 16px rgba(0,0,0,0.9), 0 0 30px rgba(0,0,0,0.5);
+        }
+
+        .dish-desc {
+            font-family: 'Noto Sans JP', sans-serif;
+            font-weight: 500;
+            font-size: 12px;
+            letter-spacing: 1px;
+            color: rgba(255,255,255,0.9);
+            line-height: 1.6;
+            text-shadow: 0 1px 8px rgba(0,0,0,0.8);
+        }
+
+        .dish-counter {
+            font-family: 'Noto Sans JP', sans-serif;
+            font-weight: 300;
+            font-size: 10px;
+            letter-spacing: 4px;
+            color: var(--gold);
+            margin-bottom: 4px;
+            text-transform: uppercase;
+        }
+
+        /* CTA styles */
+        .copy-text {
+            font-family: 'Noto Serif JP', serif;
+            font-weight: 400;
+            font-size: 14px;
+            letter-spacing: 2px;
+            color: rgba(255,255,255,0.9);
+            line-height: 2;
+        }
+
+        .cta-phone {
+            font-family: 'Noto Serif JP', serif;
+            font-size: 26px;
+            font-weight: 600;
+            color: var(--gold);
+            letter-spacing: 3px;
+            margin: 8px 0;
+        }
+
+        .cta-address {
+            font-size: 11px;
+            color: rgba(255,255,255,0.5);
+            letter-spacing: 2px;
+        }
+
+        /* Save prompt */
+        .save-prompt {
+            font-family: 'Noto Sans JP', sans-serif;
+            font-weight: 700;
+            font-size: 11px;
+            letter-spacing: 2px;
+            color: #fff;
+            background: rgba(106,76,147,0.3);
+            backdrop-filter: blur(4px);
+            padding: 6px 14px;
+            border-radius: 20px;
+            border: 1px solid rgba(155,127,191,0.5);
+            display: inline-block;
+            margin-top: 12px;
+        }
+
+        /* Gold line decoration */
+        .gold-line {
+            width: 40px;
+            height: 1.5px;
+            background: var(--gold);
+            margin: 8px auto;
+            opacity: 0;
+        }
+
+        .text-bottom-safe .gold-line {
+            margin: 8px 0;
+        }
+
+        .scene.active .gold-line {
+            animation: lineExpand 0.4s ease 0.15s forwards;
+        }
+
+        @keyframes lineExpand {
+            from { width: 0; opacity: 0; }
+            to { width: 40px; opacity: 1; }
+        }
+
+        /* Instagram-style UI overlay */
+        .ig-ui {
+            position: absolute;
+            inset: 0;
+            z-index: 50;
+            pointer-events: none;
+        }
+
+        .ig-header {
+            position: absolute;
+            top: 32px;
+            left: 16px;
+            right: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .ig-header .reels-label {
+            font-size: 16px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        .ig-header .camera-icon {
+            font-size: 20px;
+        }
+
+        .ig-sidebar {
+            position: absolute;
+            right: 12px;
+            bottom: 110px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .ig-sidebar .ig-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .ig-sidebar .ig-icon {
+            font-size: 24px;
+        }
+
+        .ig-sidebar .ig-count {
+            font-size: 10px;
+            font-weight: 500;
+        }
+
+        .ig-bottom {
+            position: absolute;
+            bottom: 20px;
+            left: 12px;
+            right: 60px;
+        }
+
+        .ig-account {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .ig-avatar {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--kikyo), var(--gold));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .ig-username {
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        .ig-caption {
+            font-size: 11px;
+            line-height: 1.5;
+            color: rgba(255,255,255,0.85);
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+        }
+
+        .ig-music {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 8px;
+            font-size: 10px;
+            color: rgba(255,255,255,0.7);
+        }
+
+        .ig-music .music-icon {
+            font-size: 12px;
+        }
+
+        /* Progress bars */
+        .ig-progress {
+            position: absolute;
+            top: 26px;
+            left: 8px;
+            right: 8px;
+            display: flex;
+            gap: 3px;
+            z-index: 60;
+        }
+
+        .ig-progress-seg {
+            flex: 1;
+            height: 2px;
+            background: rgba(255,255,255,0.3);
+            border-radius: 1px;
+            overflow: hidden;
+        }
+
+        .ig-progress-seg .fill {
+            height: 100%;
+            background: #fff;
+            width: 0%;
+            border-radius: 1px;
+        }
+
+        .ig-progress-seg.done .fill {
+            width: 100%;
+        }
+
+        .ig-progress-seg.current .fill {
+            animation: progressFill var(--scene-duration) linear forwards;
+        }
+
+        @keyframes progressFill {
+            from { width: 0%; }
+            to { width: 100%; }
+        }
+
+        /* Play / Pause overlay */
+        .play-overlay {
+            position: absolute;
+            inset: 0;
+            z-index: 70;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0,0,0,0.4);
+            cursor: pointer;
+            transition: opacity 0.3s;
+        }
+
+        .play-overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .play-circle {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.2);
+            backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            transition: transform 0.2s;
+        }
+
+        .play-circle:hover {
+            transform: scale(1.1);
+        }
+
+        /* Tap to pause area */
+        .tap-area {
+            position: absolute;
+            inset: 0;
+            z-index: 55;
+            cursor: pointer;
+        }
+
+        /* Lid open effect */
+        .lid-effect {
+            position: absolute;
+            inset: 0;
+            background: #000;
+            z-index: 3;
+            opacity: 0;
+        }
+
+        .scene.active .lid-effect {
+            animation: lidOpen 0.8s ease-out forwards;
+        }
+
+        @keyframes lidOpen {
+            0% { opacity: 1; }
+            30% { opacity: 0.7; }
+            100% { opacity: 0; }
+        }
+
+        /* Beat pulse */
+        .scene.active .beat-pulse {
+            animation: beatPulse 0.4s ease-out;
+        }
+
+        @keyframes beatPulse {
+            0% { filter: brightness(1.4) contrast(1.1); }
+            100% { filter: brightness(1) contrast(1); }
+        }
+
+        /* CTA pulse */
+        .cta-pulse {
+            display: inline-block;
+            padding: 10px 28px;
+            border: 1.5px solid var(--gold);
+            border-radius: 28px;
+            font-family: 'Noto Serif JP', serif;
+            font-size: 14px;
+            font-weight: 600;
+            letter-spacing: 3px;
+            color: var(--gold);
+            opacity: 0;
+        }
+
+        .scene.active .cta-pulse {
+            animation: ctaPulseIn 0.4s ease 0.3s forwards, ctaGlow 1.2s ease 0.7s infinite;
+        }
+
+        @keyframes ctaPulseIn {
+            from { opacity: 0; transform: scale(0.85); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        @keyframes ctaGlow {
+            0%, 100% { box-shadow: 0 0 10px rgba(196,162,101,0.2); }
+            50% { box-shadow: 0 0 30px rgba(196,162,101,0.6); }
+        }
+
+        /* Loop fade */
+        .loop-fade {
+            position: absolute;
+            inset: 0;
+            background: #000;
+            z-index: 80;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .loop-fade.active {
+            animation: loopFade 0.6s ease-in-out;
+        }
+
+        @keyframes loopFade {
+            0% { opacity: 0; }
+            40% { opacity: 0.8; }
+            60% { opacity: 0.8; }
+            100% { opacity: 0; }
+        }
+
+        /* Controls below phone */
+        .controls {
+            margin-top: 24px;
+            display: flex;
+            gap: 16px;
+            align-items: center;
+        }
+
+        .ctrl-btn {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: #fff;
+            padding: 10px 24px;
+            border-radius: 24px;
+            font-size: 13px;
+            font-family: 'Noto Sans JP', sans-serif;
+            cursor: pointer;
+            transition: all 0.2s;
+            letter-spacing: 1px;
+        }
+
+        .ctrl-btn:hover {
+            background: var(--kikyo);
+            color: #fff;
+            border-color: var(--kikyo);
+        }
+
+        .ctrl-btn.primary {
+            background: linear-gradient(135deg, var(--kikyo), var(--gold));
+            color: #fff;
+            border-color: transparent;
+        }
+
+        .ctrl-btn.primary:hover {
+            background: linear-gradient(135deg, var(--kikyo-light), var(--gold-light));
+        }
+
+        .scene-indicator {
+            font-family: 'Noto Serif JP', serif;
+            font-size: 13px;
+            color: rgba(255,255,255,0.5);
+            letter-spacing: 2px;
+            margin-top: 16px;
+        }
+
+        /* Responsive */
+        @media (max-width: 400px) {
+            .phone-wrapper {
+                width: 320px;
+                height: 568px;
+                border-radius: 32px;
+            }
+            .reels-container {
+                border-radius: 30px;
+            }
+        }
+
+        .export-hint {
+            margin-top: 20px;
+            font-size: 11px;
+            color: rgba(255,255,255,0.3);
+            text-align: center;
+            letter-spacing: 1px;
+            max-width: 360px;
+            line-height: 1.8;
+        }
+
+        /* Algo optimization stats */
+        .algo-stats {
+            margin-top: 16px;
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .algo-stat {
+            text-align: center;
+        }
+
+        .algo-stat-value {
+            font-family: 'Noto Sans JP', sans-serif;
+            font-weight: 700;
+            font-size: 18px;
+            color: var(--gold);
+        }
+
+        .algo-stat-label {
+            font-size: 9px;
+            color: rgba(255,255,255,0.4);
+            letter-spacing: 2px;
+            margin-top: 2px;
+        }
+
+        /* Course menu table */
+        .menu-preview {
+            margin-top: 28px;
+            max-width: 360px;
+            width: 100%;
+            border-top: 1px solid rgba(196,162,101,0.2);
+            padding-top: 20px;
+        }
+
+        .menu-preview-title {
+            font-family: 'Noto Serif JP', serif;
+            font-weight: 400;
+            font-size: 12px;
+            letter-spacing: 3px;
+            color: var(--kikyo-light);
+            text-align: center;
+            margin-bottom: 14px;
+        }
+
+        .menu-item {
+            display: flex;
+            gap: 12px;
+            padding: 5px 0;
+            font-size: 11px;
+            line-height: 1.6;
+            color: rgba(255,255,255,0.5);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .menu-item-label {
+            font-family: 'Noto Serif JP', serif;
+            font-weight: 500;
+            color: var(--gold);
+            min-width: 36px;
+            letter-spacing: 2px;
+            font-size: 10px;
+        }
+
+        .menu-item-desc {
+            font-family: 'Noto Sans JP', sans-serif;
+            font-weight: 300;
+        }
+    </style>
+</head>
+<body>
+
+    <p class="page-title">INSTAGRAM REELS PREVIEW <span class="algo-badge">KIKYO COURSE</span></p>
+
+    <div class="phone-wrapper">
+        <div class="phone-notch"></div>
+        <div class="reels-container" id="reelsContainer">
+
+            <!-- Instagram Progress Bars -->
+            <div class="ig-progress" id="igProgress"></div>
+
+            <!-- Flash/Glitch transition overlays -->
+            <div class="flash-overlay" id="flashOverlay"></div>
+            <div class="glitch-overlay" id="glitchOverlay"></div>
+            <div class="loop-fade" id="loopFade"></div>
+
+            <!-- Scenes will be injected by JS -->
+            <div id="scenesWrapper"></div>
+
+            <!-- Instagram UI Overlay -->
+            <div class="ig-ui">
+                <div class="ig-header">
+                    <span class="reels-label">Reels</span>
+                    <span class="camera-icon">&#x1F4F7;</span>
+                </div>
+                <div class="ig-sidebar">
+                    <div class="ig-btn">
+                        <span class="ig-icon">&hearts;</span>
+                        <span class="ig-count">8.7K</span>
+                    </div>
+                    <div class="ig-btn">
+                        <span class="ig-icon">&#x1F4AC;</span>
+                        <span class="ig-count">516</span>
+                    </div>
+                    <div class="ig-btn">
+                        <span class="ig-icon">&#x27A4;</span>
+                    </div>
+                    <div class="ig-btn">
+                        <span class="ig-icon">&hellip;</span>
+                    </div>
+                </div>
+                <div class="ig-bottom">
+                    <div class="ig-account">
+                        <div class="ig-avatar">嵓</div>
+                        <span class="ig-username">kitashinchi_oiwano</span>
+                    </div>
+                    <div class="ig-caption">北新地の隠れ家で味わう桔梗色コース🌸 二月限定全十一品 柚子釜先付から桜海老の土鍋ご飯まで ✨ #北新地 #懐石 #大阪グルメ #接待 #ミシュラン</div>
+                    <div class="ig-music">
+                        <span class="music-icon">&#x266B;</span>
+                        <span class="music-scroll">Sakura Dreams - Ambient Koto &amp; Shakuhachi</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tap to pause -->
+            <div class="tap-area" id="tapArea"></div>
+
+            <!-- Initial play overlay -->
+            <div class="play-overlay" id="playOverlay">
+                <div class="play-circle">&#9654;</div>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="controls">
+        <button class="ctrl-btn primary" id="btnPlay" onclick="startReels()">&#9654; 再生</button>
+        <button class="ctrl-btn" id="btnRestart" onclick="restartReels()">&#x21BB; 最初から</button>
+    </div>
+    <div class="scene-indicator" id="sceneIndicator">SCENE 01 / 10</div>
+
+    <div class="algo-stats">
+        <div class="algo-stat">
+            <div class="algo-stat-value" id="totalDuration">~16s</div>
+            <div class="algo-stat-label">TOTAL LENGTH</div>
+        </div>
+        <div class="algo-stat">
+            <div class="algo-stat-value">1.0s</div>
+            <div class="algo-stat-label">HOOK TIMING</div>
+        </div>
+        <div class="algo-stat">
+            <div class="algo-stat-value">1.5-2s</div>
+            <div class="algo-stat-label">CUT PACE</div>
+        </div>
+        <div class="algo-stat">
+            <div class="algo-stat-value">&#x221E;</div>
+            <div class="algo-stat-label">LOOP</div>
+        </div>
+    </div>
+
+    <!-- Full course menu reference -->
+    <div class="menu-preview">
+        <div class="menu-preview-title">桔 梗 色 コ ー ス ── 二月の献立</div>
+        <div class="menu-item"><span class="menu-item-label">先　付</span><span class="menu-item-desc">柚子釜にて 温かい柚子豆腐 菜の花 芝海老 振柚子 菊菜餡</span></div>
+        <div class="menu-item"><span class="menu-item-label">吸　物</span><span class="menu-item-desc">蛤潮汁 松波キャベツ 筍 木の芽</span></div>
+        <div class="menu-item"><span class="menu-item-label">造　里</span><span class="menu-item-desc">平貝殻盛り 平貝 本鮪 明石鯛 寒鰤 あしらい一式</span></div>
+        <div class="menu-item"><span class="menu-item-label">凌　ぎ</span><span class="menu-item-desc">木の芽寿司 蛍烏賊 海苔</span></div>
+        <div class="menu-item"><span class="menu-item-label">焼　物</span><span class="menu-item-desc">ホワイトアスパラと帆立貝 昆布オイル焼き 芽キャベツ 菜の花とビーツのソースで</span></div>
+        <div class="menu-item"><span class="menu-item-label">揚　物</span><span class="menu-item-desc">鱈の白子春巻き 唐墨添え</span></div>
+        <div class="menu-item"><span class="menu-item-label">口直し</span><span class="menu-item-desc">日向夏 レモン風味のジュレ掛け 金柑蜜煮 チャービル おいしいトマト</span></div>
+        <div class="menu-item"><span class="menu-item-label">温　物</span><span class="menu-item-desc">黒毛和牛サーロインと筍・山菜スープ煮 木の芽</span></div>
+        <div class="menu-item"><span class="menu-item-label">仕　上</span><span class="menu-item-desc">桜海老と筍土鍋ご飯 うすい豆 木の芽 香の物 味噌汁</span></div>
+        <div class="menu-item"><span class="menu-item-label">水　物</span><span class="menu-item-desc">おいしい苺</span></div>
+        <div class="menu-item"><span class="menu-item-label">甘　味</span><span class="menu-item-desc">牛乳餅 小倉あん みかんのソース ミント お薄</span></div>
+    </div>
+
+    <p class="export-hint">
+        IG最適化: フック1秒→ビートシンク高速カット→ループ再生<br>
+        CapCut等で再現時はBPM120前後のトレンド音源に合わせてください
+    </p>
+
+    <script>
+        // =====================================================
+        // INSTAGRAM REELS — 桔梗色コース 二月の献立
+        // =====================================================
+        // 全十一品を10シーン ~16sでアルゴリズム最適化
+        // Hook (1s) → Title (1.8s) → 先付 (1.5s) → 造里 (1.5s)
+        // → 焼物 (1.5s) → 温物 (1.5s) → 高速モンタージュ (1.2s)
+        // → 仕上 (1.8s) → 甘味 (1.5s) → CTA (2.7s)
+        // =====================================================
+
+        const SCENES = [
+            {
+                // 0: HOOK — <1s grab
+                image: 'https://github.com/user-attachments/assets/b3a7eefa-2fd5-4ce0-8830-d665a788b10d',
+                duration: 1000,
+                kb: 'kb-dramatic-zoom',
+                transition: 'trans-cut',
+                textPosition: 'text-center',
+                textAnim: 'anim-pop',
+                lines: [
+                    { class: 'hook-text', text: '北新地の隠れ家' },
+                    { class: 'hook-text hook-text-gold', text: '全十一品の懐石' }
+                ],
+                isHook: true
+            },
+            {
+                // 1: Title — 桔梗色コース brand
+                image: 'https://github.com/user-attachments/assets/6e9bb9c1-0ead-47de-b875-ac9dfde0c3b7',
+                duration: 1800,
+                kb: 'kb-zoom-in',
+                transition: 'trans-flash',
+                hasShimmer: true,
+                textPosition: 'text-center',
+                textAnim: 'anim-scale',
+                lines: [
+                    { class: 'title-badge', text: 'MICHELIN SELECTED' },
+                    { class: 'title-main', text: '北新地 大嵓埜' },
+                    { class: 'title-sub', text: '二月の特別懐石' },
+                    { class: 'course-name-badge', text: '桔 梗 色 コ ー ス' }
+                ]
+            },
+            {
+                // 2: 先付 — 柚子釜にて温かい柚子豆腐
+                image: 'https://github.com/user-attachments/assets/b02cc12f-1be7-4498-835c-e002b4d5afa2',
+                duration: 1500,
+                kb: 'kb-zoom-out',
+                transition: 'trans-glitch',
+                hasSteam: true,
+                textPosition: 'text-bottom-safe',
+                textAnim: 'anim-slide',
+                lines: [
+                    { class: 'dish-counter', text: '01 ── SAKIZUKE' },
+                    { class: 'dish-name', text: '先　付' },
+                    { class: 'dish-desc', text: '柚子釜にて 温かい柚子豆腐\n菜の花 芝海老 菊菜餡' }
+                ]
+            },
+            {
+                // 3: 造里 — 平貝殻盛り
+                image: 'https://github.com/user-attachments/assets/b3a7eefa-2fd5-4ce0-8830-d665a788b10d',
+                duration: 1500,
+                kb: 'kb-pan-right',
+                transition: 'trans-whip',
+                textPosition: 'text-bottom-safe',
+                textAnim: 'anim-pop',
+                lines: [
+                    { class: 'dish-counter', text: '03 ── TSUKURI' },
+                    { class: 'dish-name', text: '造　里' },
+                    { class: 'dish-desc', text: '平貝殻盛り 本鮪 明石鯛 寒鰤' }
+                ]
+            },
+            {
+                // 4: 焼物 — ホワイトアスパラと帆立貝
+                image: 'https://github.com/user-attachments/assets/89d7a632-b7be-46f6-b301-5feb0b31991d',
+                duration: 1500,
+                kb: 'kb-zoom-tilt',
+                transition: 'trans-flash',
+                textPosition: 'text-bottom-safe',
+                textAnim: 'anim-slide',
+                lines: [
+                    { class: 'dish-counter', text: '05 ── YAKIMONO' },
+                    { class: 'dish-name', text: '焼き物' },
+                    { class: 'dish-desc', text: 'ホワイトアスパラと帆立貝\n昆布オイル焼き ビーツのソース' }
+                ]
+            },
+            {
+                // 5: 温物 — 黒毛和牛サーロイン
+                image: 'https://github.com/user-attachments/assets/58250abe-6813-4005-9973-aaf2266b4ea6',
+                duration: 1500,
+                kb: 'kb-zoom-in',
+                transition: 'trans-glitch',
+                hasSteam: true,
+                textPosition: 'text-bottom-safe',
+                textAnim: 'anim-pop',
+                lines: [
+                    { class: 'dish-counter', text: '08 ── TAKIMONO' },
+                    { class: 'dish-name', text: '温　物' },
+                    { class: 'dish-desc', text: '黒毛和牛サーロインと筍\n山菜スープ煮 木の芽' }
+                ]
+            },
+            {
+                // 6: Rapid montage — 吸物/凌ぎ/揚物/口直し/水物
+                image: 'https://github.com/user-attachments/assets/34173214-d90e-4556-b22f-75f53e756304',
+                duration: 1200,
+                kb: 'kb-dramatic-zoom',
+                transition: 'trans-zoom',
+                hasFlash: true,
+                textPosition: 'text-center',
+                textAnim: 'anim-pop',
+                lines: [
+                    { class: 'hook-text', text: '全 十 一 品' }
+                ],
+                isRapid: true,
+                rapidImages: [
+                    'https://github.com/user-attachments/assets/a990a366-4d57-4cdd-8766-0c5d794f5bfc',
+                    'https://github.com/user-attachments/assets/d192340c-a5af-4ef6-acd7-56ed93cb771f',
+                    'https://github.com/user-attachments/assets/b39bf119-c360-47df-b8b1-5399b4445ab1'
+                ]
+            },
+            {
+                // 7: 仕上 — 桜海老と筍土鍋ご飯
+                image: 'https://github.com/user-attachments/assets/ee7a5a4a-885d-4f95-b83c-5ee014652a4c',
+                duration: 1800,
+                kb: 'kb-zoom-in',
+                transition: 'trans-flash',
+                hasLid: true,
+                hasSteam: true,
+                textPosition: 'text-bottom-safe',
+                textAnim: 'anim-reveal',
+                lines: [
+                    { class: 'dish-counter', text: '09 ── SHIAGE' },
+                    { class: 'dish-name', text: '仕　上' },
+                    { class: 'dish-desc', text: '桜海老と筍 土鍋ご飯\nうすい豆 木の芽' }
+                ]
+            },
+            {
+                // 8: 甘味 — 牛乳餅
+                image: 'https://github.com/user-attachments/assets/a990a366-4d57-4cdd-8766-0c5d794f5bfc',
+                duration: 1500,
+                kb: 'kb-pan-left',
+                transition: 'trans-slide-up',
+                textPosition: 'text-bottom-safe',
+                textAnim: 'anim-scale',
+                lines: [
+                    { class: 'dish-counter', text: '11 ── KANMI' },
+                    { class: 'dish-name', text: '甘　味' },
+                    { class: 'dish-desc', text: '牛乳餅 小倉あん みかんのソース\nミント お薄' }
+                ]
+            },
+            {
+                // 9: CTA — Conversion + Loop
+                image: 'https://github.com/user-attachments/assets/6e9bb9c1-0ead-47de-b875-ac9dfde0c3b7',
+                duration: 2700,
+                kb: 'kb-zoom-in',
+                transition: 'trans-fade',
+                hasShimmer: true,
+                textPosition: 'text-center',
+                textAnim: 'anim-scale',
+                isCTA: true,
+                lines: [
+                    { class: 'copy-text', text: '接待・記念日に' },
+                    { class: 'title-main', text: '大嵓埜' },
+                    { class: 'cta-phone', text: '06-6341-3535' },
+                    { class: 'cta-address', text: '北新地 FOODEAR ビル 3F' }
+                ]
+            }
+        ];
+
+        let currentScene = -1;
+        let isPlaying = false;
+        let sceneTimeout = null;
+        let loopCount = 0;
+        const MAX_LOOPS = 3;
+
+        function buildScenes() {
+            const wrapper = document.getElementById('scenesWrapper');
+            const progress = document.getElementById('igProgress');
+            wrapper.innerHTML = '';
+            progress.innerHTML = '';
+
+            SCENES.forEach((s, i) => {
+                const div = document.createElement('div');
+                div.className = `scene ${s.transition || 'trans-cut'}`;
+                div.id = `scene-${i}`;
+
+                // Handle multiline dish-desc
+                const linesHtml = s.lines.map(l => {
+                    const text = l.text.replace(/\n/g, '<br>');
+                    if (s.isCTA && l.class === 'cta-phone') {
+                        return `<span class="line ${s.textAnim} cta-pulse">${text}</span>`;
+                    }
+                    return `<span class="line ${s.textAnim} ${l.class}">${text}</span>`;
+                }).join('');
+
+                div.innerHTML = `
+                    <div class="scene-image ${s.kb} beat-pulse" style="background-image:url('${s.image}')"></div>
+                    <div class="scene-overlay"></div>
+                    ${s.hasShimmer ? '<div class="shimmer-overlay"></div>' : ''}
+                    ${s.hasSteam ? '<div class="steam-overlay"></div>' : ''}
+                    ${s.hasLid ? '<div class="lid-effect"></div>' : ''}
+                    <div class="scene-text ${s.textPosition}">
+                        ${linesHtml}
+                        ${!s.isHook && !s.isCTA && !s.isRapid ? '<div class="line ' + s.textAnim + ' gold-line"></div>' : ''}
+                        ${s.isCTA ? '<div class="line ' + s.textAnim + ' save-prompt">&#x1F516; 保存して次の接待で</div>' : ''}
+                    </div>
+                `;
+                wrapper.appendChild(div);
+
+                // Progress segment
+                const seg = document.createElement('div');
+                seg.className = 'ig-progress-seg';
+                seg.id = `prog-${i}`;
+                seg.innerHTML = '<div class="fill"></div>';
+                progress.appendChild(seg);
+            });
+
+            // Calculate and display total duration
+            const total = SCENES.reduce((sum, s) => sum + s.duration, 0);
+            document.getElementById('totalDuration').textContent = `~${Math.round(total / 1000)}s`;
+        }
+
+        function triggerTransitionEffect(scene) {
+            const trans = scene.transition || 'trans-cut';
+            if (trans === 'trans-flash') {
+                const flash = document.getElementById('flashOverlay');
+                flash.classList.remove('flash-active');
+                void flash.offsetWidth;
+                flash.classList.add('flash-active');
+                setTimeout(() => flash.classList.remove('flash-active'), 150);
+            } else if (trans === 'trans-glitch') {
+                const glitch = document.getElementById('glitchOverlay');
+                glitch.classList.remove('glitch-active');
+                void glitch.offsetWidth;
+                glitch.classList.add('glitch-active');
+                setTimeout(() => glitch.classList.remove('glitch-active'), 250);
+            }
+        }
+
+        function runRapidMontage(sceneData, sceneEl) {
+            if (!sceneData.isRapid || !sceneData.rapidImages) return;
+            const imgEl = sceneEl.querySelector('.scene-image');
+            const images = sceneData.rapidImages;
+            const interval = 300;
+
+            let idx = 0;
+            const rapidInterval = setInterval(() => {
+                if (idx >= images.length) {
+                    clearInterval(rapidInterval);
+                    return;
+                }
+                const flash = document.getElementById('flashOverlay');
+                flash.classList.remove('flash-active');
+                void flash.offsetWidth;
+                flash.classList.add('flash-active');
+
+                imgEl.style.backgroundImage = `url('${images[idx]}')`;
+                idx++;
+            }, interval);
+        }
+
+        function showScene(index) {
+            if (index >= SCENES.length) {
+                loopCount++;
+                if (loopCount >= MAX_LOOPS) {
+                    isPlaying = false;
+                    document.getElementById('btnPlay').innerHTML = '&#9654; 再生';
+                    return;
+                }
+
+                const loopFade = document.getElementById('loopFade');
+                loopFade.classList.remove('active');
+                void loopFade.offsetWidth;
+                loopFade.classList.add('active');
+
+                document.querySelectorAll('.scene').forEach(s => {
+                    s.classList.remove('active', 'exiting');
+                });
+
+                currentScene = -1;
+                setTimeout(() => {
+                    loopFade.classList.remove('active');
+                    showScene(0);
+                }, 400);
+                return;
+            }
+
+            // Hide previous
+            if (currentScene >= 0) {
+                const prev = document.getElementById(`scene-${currentScene}`);
+                if (prev) {
+                    prev.classList.remove('active');
+                    prev.classList.add('exiting');
+                    setTimeout(() => prev.classList.remove('exiting'), 400);
+                }
+            }
+
+            currentScene = index;
+            const scene = SCENES[index];
+
+            triggerTransitionEffect(scene);
+
+            const el = document.getElementById(`scene-${index}`);
+            el.classList.remove('active');
+            void el.offsetWidth;
+            el.classList.add('active');
+
+            if (scene.isRapid) {
+                runRapidMontage(scene, el);
+            }
+
+            // Update progress bars
+            SCENES.forEach((s, i) => {
+                const seg = document.getElementById(`prog-${i}`);
+                if (!seg) return;
+                seg.classList.remove('done', 'current');
+                seg.style.setProperty('--scene-duration', s.duration + 'ms');
+                if (i < index) {
+                    seg.classList.add('done');
+                } else if (i === index) {
+                    seg.classList.add('current');
+                }
+            });
+
+            // Update indicator
+            const displayNum = index + 1;
+            document.getElementById('sceneIndicator').textContent =
+                `SCENE ${String(displayNum).padStart(2,'0')} / ${SCENES.length}` +
+                (loopCount > 0 ? ` (LOOP ${loopCount + 1})` : '');
+
+            sceneTimeout = setTimeout(() => {
+                if (isPlaying) showScene(index + 1);
+            }, scene.duration);
+        }
+
+        function startReels() {
+            if (isPlaying) {
+                pauseReels();
+                return;
+            }
+            isPlaying = true;
+            loopCount = 0;
+            document.getElementById('playOverlay').classList.add('hidden');
+            document.getElementById('btnPlay').innerHTML = '&#9646;&#9646; 一時停止';
+
+            if (currentScene < 0 || currentScene >= SCENES.length - 1) {
+                showScene(0);
+            } else {
+                showScene(currentScene);
+            }
+        }
+
+        function pauseReels() {
+            isPlaying = false;
+            clearTimeout(sceneTimeout);
+            document.getElementById('btnPlay').innerHTML = '&#9654; 再生';
+        }
+
+        function restartReels() {
+            clearTimeout(sceneTimeout);
+            currentScene = -1;
+            isPlaying = false;
+            loopCount = 0;
+
+            document.querySelectorAll('.scene').forEach(s => {
+                s.classList.remove('active', 'exiting');
+            });
+            document.querySelectorAll('.ig-progress-seg').forEach(s => {
+                s.classList.remove('done', 'current');
+            });
+
+            document.getElementById('playOverlay').classList.remove('hidden');
+            document.getElementById('btnPlay').innerHTML = '&#9654; 再生';
+            document.getElementById('sceneIndicator').textContent = `SCENE 01 / ${SCENES.length}`;
+        }
+
+        // Tap to play/pause
+        document.getElementById('playOverlay').addEventListener('click', startReels);
+        document.getElementById('tapArea').addEventListener('click', () => {
+            if (isPlaying) pauseReels();
+            else startReels();
+        });
+
+        // Init
+        buildScenes();
+    </script>
+</body>
+</html>
