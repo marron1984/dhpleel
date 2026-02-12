@@ -174,12 +174,12 @@
         }
 
         /* Ken Burns */
-        .scene.active .kb-zoom-in { animation: kbZoomIn 2s ease-out forwards; }
-        .scene.active .kb-zoom-out { animation: kbZoomOut 2s ease-out forwards; }
-        .scene.active .kb-pan-right { animation: kbPanRight 2s ease-out forwards; }
-        .scene.active .kb-pan-left { animation: kbPanLeft 2s ease-out forwards; }
-        .scene.active .kb-zoom-tilt { animation: kbZoomTilt 2s ease-out forwards; }
-        .scene.active .kb-dramatic-zoom { animation: kbDramaticZoom 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards; }
+        .scene.active .kb-zoom-in { animation: kbZoomIn 3.5s ease-out forwards; }
+        .scene.active .kb-zoom-out { animation: kbZoomOut 3.5s ease-out forwards; }
+        .scene.active .kb-pan-right { animation: kbPanRight 3.5s ease-out forwards; }
+        .scene.active .kb-pan-left { animation: kbPanLeft 3.5s ease-out forwards; }
+        .scene.active .kb-zoom-tilt { animation: kbZoomTilt 3.5s ease-out forwards; }
+        .scene.active .kb-dramatic-zoom { animation: kbDramaticZoom 2.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards; }
 
         @keyframes kbZoomIn { from { transform: scale(1); } to { transform: scale(1.2); } }
         @keyframes kbZoomOut { from { transform: scale(1.25); } to { transform: scale(1); } }
@@ -257,7 +257,7 @@
         }
 
         .scene.active .shimmer-overlay {
-            animation: shimmer 1.5s ease-in-out;
+            animation: shimmer 3s ease-in-out;
         }
 
         @keyframes shimmer {
@@ -290,15 +290,15 @@
         }
 
         .scene.active .steam-overlay {
-            animation: steamFloat 2s ease-in-out forwards;
+            animation: steamFloat 3.5s ease-in-out forwards;
         }
 
         .scene.active .steam-overlay::before {
-            animation: steamRise1 2s ease-out forwards;
+            animation: steamRise1 3.5s ease-out forwards;
         }
 
         .scene.active .steam-overlay::after {
-            animation: steamRise2 2s ease-out 0.2s forwards;
+            animation: steamRise2 3.5s ease-out 0.3s forwards;
         }
 
         @keyframes steamFloat {
@@ -391,11 +391,11 @@
             animation: textReveal 0.5s ease forwards;
         }
 
-        .scene.active .scene-text .line:nth-child(1) { animation-delay: 0.05s; }
-        .scene.active .scene-text .line:nth-child(2) { animation-delay: 0.2s; }
-        .scene.active .scene-text .line:nth-child(3) { animation-delay: 0.35s; }
-        .scene.active .scene-text .line:nth-child(4) { animation-delay: 0.5s; }
-        .scene.active .scene-text .line:nth-child(5) { animation-delay: 0.65s; }
+        .scene.active .scene-text .line:nth-child(1) { animation-delay: 0.1s; }
+        .scene.active .scene-text .line:nth-child(2) { animation-delay: 0.4s; }
+        .scene.active .scene-text .line:nth-child(3) { animation-delay: 0.7s; }
+        .scene.active .scene-text .line:nth-child(4) { animation-delay: 1.0s; }
+        .scene.active .scene-text .line:nth-child(5) { animation-delay: 1.3s; }
 
         @keyframes textPop {
             0% { opacity: 0; transform: scale(0.5); }
@@ -1039,11 +1039,11 @@
             <div class="algo-stat-label">TOTAL LENGTH</div>
         </div>
         <div class="algo-stat">
-            <div class="algo-stat-value">1.0s</div>
+            <div class="algo-stat-value">2.5s</div>
             <div class="algo-stat-label">HOOK TIMING</div>
         </div>
         <div class="algo-stat">
-            <div class="algo-stat-value">1.5-2s</div>
+            <div class="algo-stat-value">3-4s</div>
             <div class="algo-stat-label">CUT PACE</div>
         </div>
         <div class="algo-stat">
@@ -1077,17 +1077,17 @@
         // =====================================================
         // INSTAGRAM REELS — 桔梗色コース 二月の献立
         // =====================================================
-        // 全十一品を10シーン ~16sでアルゴリズム最適化
-        // Hook (1s) → Title (1.8s) → 先付 (1.5s) → 造里 (1.5s)
-        // → 焼物 (1.5s) → 温物 (1.5s) → 高速モンタージュ (1.2s)
-        // → 仕上 (1.8s) → 甘味 (1.5s) → CTA (2.7s)
+        // 全十一品を10シーン ~36sでゆったり展開
+        // Hook (2.5s) → Title (4s) → 先付 (3.5s) → 造里 (3.5s)
+        // → 焼物 (3.5s) → 温物 (3.5s) → モンタージュ (3s)
+        // → 仕上 (4s) → 甘味 (3.5s) → CTA (5s)
         // =====================================================
 
         const SCENES = [
             {
-                // 0: HOOK — <1s grab
+                // 0: HOOK — 2.5s grab
                 image: 'https://github.com/user-attachments/assets/b3a7eefa-2fd5-4ce0-8830-d665a788b10d',
-                duration: 1000,
+                duration: 2500,
                 kb: 'kb-dramatic-zoom',
                 transition: 'trans-cut',
                 textPosition: 'text-center',
@@ -1101,7 +1101,7 @@
             {
                 // 1: Title — 桔梗色コース brand
                 image: 'https://github.com/user-attachments/assets/6e9bb9c1-0ead-47de-b875-ac9dfde0c3b7',
-                duration: 1800,
+                duration: 4000,
                 kb: 'kb-zoom-in',
                 transition: 'trans-flash',
                 hasShimmer: true,
@@ -1117,7 +1117,7 @@
             {
                 // 2: 先付 — 柚子釜にて温かい柚子豆腐
                 image: 'https://github.com/user-attachments/assets/b02cc12f-1be7-4498-835c-e002b4d5afa2',
-                duration: 1500,
+                duration: 3500,
                 kb: 'kb-zoom-out',
                 transition: 'trans-glitch',
                 hasSteam: true,
@@ -1132,7 +1132,7 @@
             {
                 // 3: 造里 — 平貝殻盛り
                 image: 'https://github.com/user-attachments/assets/b3a7eefa-2fd5-4ce0-8830-d665a788b10d',
-                duration: 1500,
+                duration: 3500,
                 kb: 'kb-pan-right',
                 transition: 'trans-whip',
                 textPosition: 'text-bottom-safe',
@@ -1146,7 +1146,7 @@
             {
                 // 4: 焼物 — ホワイトアスパラと帆立貝
                 image: 'https://github.com/user-attachments/assets/89d7a632-b7be-46f6-b301-5feb0b31991d',
-                duration: 1500,
+                duration: 3500,
                 kb: 'kb-zoom-tilt',
                 transition: 'trans-flash',
                 textPosition: 'text-bottom-safe',
@@ -1160,7 +1160,7 @@
             {
                 // 5: 温物 — 黒毛和牛サーロイン
                 image: 'https://github.com/user-attachments/assets/58250abe-6813-4005-9973-aaf2266b4ea6',
-                duration: 1500,
+                duration: 3500,
                 kb: 'kb-zoom-in',
                 transition: 'trans-glitch',
                 hasSteam: true,
@@ -1175,7 +1175,7 @@
             {
                 // 6: Rapid montage — 吸物/凌ぎ/揚物/口直し/水物
                 image: 'https://github.com/user-attachments/assets/34173214-d90e-4556-b22f-75f53e756304',
-                duration: 1200,
+                duration: 3000,
                 kb: 'kb-dramatic-zoom',
                 transition: 'trans-zoom',
                 hasFlash: true,
@@ -1194,7 +1194,7 @@
             {
                 // 7: 仕上 — 桜海老と筍土鍋ご飯
                 image: 'https://github.com/user-attachments/assets/ee7a5a4a-885d-4f95-b83c-5ee014652a4c',
-                duration: 1800,
+                duration: 4000,
                 kb: 'kb-zoom-in',
                 transition: 'trans-flash',
                 hasLid: true,
@@ -1210,7 +1210,7 @@
             {
                 // 8: 甘味 — 牛乳餅
                 image: 'https://github.com/user-attachments/assets/a990a366-4d57-4cdd-8766-0c5d794f5bfc',
-                duration: 1500,
+                duration: 3500,
                 kb: 'kb-pan-left',
                 transition: 'trans-slide-up',
                 textPosition: 'text-bottom-safe',
@@ -1224,7 +1224,7 @@
             {
                 // 9: CTA — Conversion + Loop
                 image: 'https://github.com/user-attachments/assets/6e9bb9c1-0ead-47de-b875-ac9dfde0c3b7',
-                duration: 2700,
+                duration: 5000,
                 kb: 'kb-zoom-in',
                 transition: 'trans-fade',
                 hasShimmer: true,
@@ -1314,7 +1314,7 @@
             if (!sceneData.isRapid || !sceneData.rapidImages) return;
             const imgEl = sceneEl.querySelector('.scene-image');
             const images = sceneData.rapidImages;
-            const interval = 300;
+            const interval = 700;
 
             let idx = 0;
             const rapidInterval = setInterval(() => {
